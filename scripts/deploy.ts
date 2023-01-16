@@ -1,11 +1,12 @@
 import { ethers } from "hardhat";
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
+// const soundFileName = numToAscii(GAM_RHYTHM) + numToAscii(GAM_SPEECH) + numToAscii(GAM_SYNTHESIZER) + numToAscii(GAM_MELODY) + ".mp3";
 const soundFileName = "DDDC.mp3";
 let sound;
 let fft;
 let band = 2048;
-let position = [];
+let pos = [];
 let velocity = [];
 let friction = 0.95;
 let mass = 20.0;
@@ -14,16 +15,18 @@ var t;
 var num, vNum;
 var radius, mySize, margin;
 var sizes = [];
-let v_planet = [];
+
+let pp = [];
 let addForse;
 
 
 function preload() {
-	sound = loadSound("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/DDDC.mp3");
+    sound = loadSound("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/DDDC.mp3");
 }
 
 function setup() {
 	randomSeed(seed);
+	frameRate(20);
 	minCanvasSize = min(windowWidth, windowHeight);
 	mySize = min(windowWidth, windowHeight);
 	margin = mySize / 100;
@@ -40,7 +43,7 @@ function setup() {
 	fft.setInput(sound);
 	for(let i = 0; i < band; i++){
 		velocity[i] = createVector(0, 0);
-		position[i] = createVector(0, 0);
+		pos[i] = createVector(0, 0);
 	}
 	count=0;
 }
@@ -59,24 +62,23 @@ function draw() {
 		let accel = createVector(addX/mass, addY/mass); 
 		velocity[i].add(accel);
 		velocity[i].mult(friction);
-		position[i].add(velocity[i]);
-		if(position[i].x < -width/2 || position[i].x > width/2){
-      position[i].x = 0;
+		pos[i].add(velocity[i]);
+		if(pos[i].x < -width/2 || pos[i].x > width/2){
+      pos[i].x = 0;
     }
-    if(position[i].y < -height/2 || position[i].y > height/2){
-      position[i].y = 0;
+    if(pos[i].y < -height/2 || pos[i].y > height/2){
+      pos[i].y = 0;
     }
-
     let h = map(log10(i), 0, log10(band), 0, 255);
     let r = map(val, 0, 1, 1, 40);
 	
-    rand = random(1000);
+	rand = random(1000);
 	if(rand>990 && addForce>150){	
 	for (let i = 0; i < num; i++) {
 		let a = (TAU / num) * i;
 		let x = radius * sin(a + t) / random(5, 3) / 1.0;
 		let y = radius * cos(a + t) / random(3, 5) / 1.0;
-		v_planet[i] = createVector(x, y);
+		pp[i] = createVector(x, y);
 	}
 	push();
 	if(addForce>350){
@@ -89,7 +91,7 @@ function draw() {
 			rotateY(random(TAU)+cos(t) / 5 + q );
 			rotateZ(random(TAU)+sin(-t) / 5 + q );
 			noStroke();
-			fill(0,50,h,h);
+			fill(0,50,h,random(h));
       
 			
 			num=10;
@@ -104,11 +106,13 @@ function draw() {
 				let y_plus =  1.25 * random(-d, d) / 1;
 				let z_plus =1.25 * random(-d, d) / 1;
 				cylinder(z_plus+parseInt(addForce/100),random(1),parseInt(addForce/100));
-				torus(z_plus,random(1),parseInt(addForce/100));
+				torus(z_plus,random(1),parseInt(parseInt(addForce/1000)/10));
 				ambientLight(60, 60, 60);
         pointLight(255, 255, 255, 50, 100, 100);
-				if(addForce>250){
-				box(z_plus,random(105),parseInt(addForce/2));
+				if(addForce>280){
+					for(let i=0; i<10; i++){
+				    box(z_plus,random(105)+i*5,parseInt(addForce/2)+i*5);
+					}
 				}
 				pop();
 			}
@@ -122,7 +126,7 @@ function draw() {
 				strokeWeight(random(0.5));
 				noFill();
 				push();
-				translate(v_planet[i].x + x_plus, v_planet[i].y + y_plus, z_plus);
+				translate(pp[i].x + x_plus, pp[i].y + y_plus, z_plus);
 				rotateX(random(TAU)+t);
 				rotateY(random(-TAU)+t);
 				rotateZ(random(PI)+t);
@@ -140,7 +144,7 @@ function draw() {
 
 function keyTyped() {
 	if (key === "s" || key === "S") {
-		saveCanvas("0712_Emotional lines_12_2022", "png");
+		saveCanvas("AudioGen", "png");
 	}
 }
 function log10(x) {
