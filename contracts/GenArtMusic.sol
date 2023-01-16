@@ -8,7 +8,7 @@ import {IGenArtMusic} from "./interfaces/IGenArtMusic.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
 
 contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
-    uint256 public tokenSupply;
+    uint256 public totalSupply;
     uint16 public tokenRemaining = 256;
     mapping(uint256 => uint16) public tokenIdToMusicIds;
     mapping(uint16 => uint16) public drawCache;
@@ -43,7 +43,7 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
     }
 
     function mint(address to) external {
-        uint256 tokenId = ++tokenSupply;
+        uint256 tokenId = ++totalSupply;
         tokenIdToMusicIds[tokenId] = drawMusicId();
         _safeMint(to, tokenId);
     }
