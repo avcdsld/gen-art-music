@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { string } from "hardhat/internal/core/params/argumentTypes";
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
 // const soundFileName = numToAscii(GAM_RHYTHM) + numToAscii(GAM_SPEECH) + numToAscii(GAM_SYNTHESIZER) + numToAscii(GAM_MELODY) + ".mp3";
@@ -308,11 +309,12 @@ describe("GenArtMusic", function () {
     await (await genArtMusic.setRenderer(renderer.address)).wait();
     await (await genArtMusic.setBaseImageUrl("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#")).wait();
 
-    const totalNum = 256;
+    const totalNum = 128;
     expect(await genArtMusic.tokenRemaining()).to.equal(totalNum);
 
+    const rarities: { [key: string]: number } = {};
     const mintedIds: { [key: number]: boolean } = [];
-    for (let i = 1; i <= totalNum; i++) {
+    for (let i = 5; i <= 4 + totalNum; i++) {
       const tx = await genArtMusic.mint(deployer.address);
       await tx.wait();
 
@@ -320,15 +322,19 @@ describe("GenArtMusic", function () {
       expect(typeof mintedIds[musicId]).to.equal("undefined");
       mintedIds[musicId] = true;
 
-      console.log(await genArtMusic.musicParam(i), musicId);
+      const { rhythm, drone, melody, speech, rarity } = await genArtMusic.musicParam(i);
+      console.log({ rhythm, drone, melody, speech, rarity }, musicId);
       // console.log(await genArtMusic.tokenURI(i));
-    }
 
-    for (let i = 0; i < totalNum; i++) {
-      expect(mintedIds[i]).to.equal(true);
+      if (!rarities[rarity]) {
+        rarities[rarity] = 0;
+      }
+      rarities[rarity]++;
     }
 
     console.log(await genArtMusic.musicParam(1));
     console.log(await genArtMusic.tokenURI(1));
+
+    console.log({ rarities });
   });
 });

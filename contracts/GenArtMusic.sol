@@ -2,14 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {IGenArtMusic} from "./interfaces/IGenArtMusic.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
 
-contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
+contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
-    uint16 public tokenRemaining = 256;
+    uint16 public tokenRemaining = 128;
     mapping(uint256 => uint16) public tokenIdToMusicIds;
     mapping(uint16 => uint16) public drawCache;
     IRenderer public renderer;
@@ -20,6 +21,11 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
 
     constructor(address rendererAddress) ERC721("GenArtMusic", "GAM") {
         renderer = IRenderer(rendererAddress);
+        totalSupply = 4;
+        _mint(_msgSender(), 1);
+        _mint(_msgSender(), 2);
+        _mint(_msgSender(), 3);
+        _mint(_msgSender(), 4);
     }
 
     function setRenderer(address rendererAddress) external onlyOwner {
@@ -42,7 +48,12 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
         _baseExternalUrl = url;
     }
 
+    function setRoyalty(address royaltyReceiver, uint96 royaltyFeeNumerator) external onlyOwner {
+        _setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);
+    }
+
     function mint(address to) external {
+        require(totalSupply <= (4 + 128), "all minted");
         uint256 tokenId = ++totalSupply;
         tokenIdToMusicIds[tokenId] = drawMusicId();
         _safeMint(to, tokenId);
@@ -56,8 +67,30 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
     }
 
     function musicParam(uint256 tokenId) public view returns (IGenArtMusic.MusicParam memory) {
-        uint8 musicId = uint8(tokenIdToMusicIds[tokenId]);
-        return IGenArtMusic.MusicParam((musicId << 6) >> 6, (musicId << 4) >> 6, (musicId << 2) >> 6, musicId >> 6);
+        if (tokenId == 1) {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.Glitch, IGenArtMusic.Speech.LittleBoy, IGenArtMusic.Drone.Glitch, IGenArtMusic.Melody.Lead);
+        } else if (tokenId == 2) {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.HiFi, IGenArtMusic.Speech.FussyMan, IGenArtMusic.Drone.LFO, IGenArtMusic.Melody.Pluck);
+        } else if (tokenId == 3) {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.LoFi, IGenArtMusic.Speech.OldMan, IGenArtMusic.Drone.Freak, IGenArtMusic.Melody.Pad);
+        } else if (tokenId == 4) {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.LoFi, IGenArtMusic.Speech.OldMan, IGenArtMusic.Drone.Freak, IGenArtMusic.Melody.Pad);
+        }
+
+        uint16 randomSeed = 111; // TODO:
+        uint8 number = uint8((tokenIdToMusicIds[tokenId] + randomSeed) % 128);
+        if (number < 10) {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.UltraRare, IGenArtMusic.Rhythm.Shuffle, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, IGenArtMusic.Melody.Shuffle);
+        } else if (number < 30) {
+            IGenArtMusic.Rhythm rhythm = number % 4 == 0 ? IGenArtMusic.Rhythm.Thick : number % 4 == 1 ? IGenArtMusic.Rhythm.LoFi : number % 4 == 2 ? IGenArtMusic.Rhythm.HiFi : IGenArtMusic.Rhythm.Glitch;
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.SuperRare, rhythm, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, IGenArtMusic.Melody.Shuffle);
+        } else if (number < 54) {
+            IGenArtMusic.Rhythm rhythm = number % 4 == 0 ? IGenArtMusic.Rhythm.Thick : number % 4 == 1 ? IGenArtMusic.Rhythm.LoFi : number % 4 == 2 ? IGenArtMusic.Rhythm.HiFi : IGenArtMusic.Rhythm.Glitch;
+            IGenArtMusic.Melody melody = number % 4 == 0 ? IGenArtMusic.Melody.Piano : number % 4 == 1 ? IGenArtMusic.Melody.Pad : number % 4 == 2 ? IGenArtMusic.Melody.Pluck : IGenArtMusic.Melody.Lead;
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.Rare, rhythm, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, melody);
+        } else {
+            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.Common, IGenArtMusic.Rhythm.Glitch, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Glitch, IGenArtMusic.Melody.Lead);
+        }
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
@@ -81,14 +114,16 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
                 '","external_url":"',
                 _baseExternalUrl,
                 Strings.toString(tokenId),
-                '","attributes":[{"trait_type":"Rhythm","value":"',
+                '","attributes":[{"trait_type":"Rarity","value":"',
+                getRarity(param.rarity),
+                '"},{"trait_type":"Rhythm","value":"',
                 getRhythmName(param.rhythm),
-                '"},{"trait_type":"Speech","value":"',
-                getSpeechName(param.speech),
-                '"},{"trait_type":"Synthesizer","value":"',
-                getSynthesizerName(param.synthesizer),
+                '"},{"trait_type":"Drone","value":"',
+                getDroneName(param.drone),
                 '"},{"trait_type":"Melody","value":"',
                 getMelodyName(param.melody),
+                '"},{"trait_type":"Speech","value":"',
+                getSpeechName(param.speech),
                 '"}]}'
             );
     }
@@ -100,35 +135,52 @@ contract GenArtMusic is IGenArtMusic, ERC721, Ownable {
         return renderer.dataURI(tokenId, param);
     }
 
-    function getRhythmName(uint8 val) private pure returns (string memory) {
-        if (val == 0) return "Thick";
-        if (val == 1) return "Lo-Fi";
-        if (val == 2) return "Hi-Fi";
-        if (val == 3) return "Glitch";
+    function getRarity(IGenArtMusic.Rarity val) private pure returns (string memory) {
+        if (val == IGenArtMusic.Rarity.Common) return "Common";
+        if (val == IGenArtMusic.Rarity.Rare) return "Rare";
+        if (val == IGenArtMusic.Rarity.SuperRare) return "Super Rare";
+        if (val == IGenArtMusic.Rarity.UltraRare) return "Ultra Rare";
+        if (val == IGenArtMusic.Rarity.OneOfOne) return "1 of 1";
         return "";
     }
 
-    function getSpeechName(uint8 val) private pure returns (string memory) {
-        if (val == 0) return "Little girl";
-        if (val == 1) return "Old man";
-        if (val == 2) return "Fussy man";
-        if (val == 3) return "Little boy";
+    function getRhythmName(IGenArtMusic.Rhythm val) private pure returns (string memory) {
+        if (val == IGenArtMusic.Rhythm.Thick) return "Thick";
+        if (val == IGenArtMusic.Rhythm.LoFi) return "Lo-Fi";
+        if (val == IGenArtMusic.Rhythm.HiFi) return "Hi-Fi";
+        if (val == IGenArtMusic.Rhythm.Glitch) return "Glitch";
+        if (val == IGenArtMusic.Rhythm.Shuffle) return "(Shuffle)";
         return "";
     }
 
-    function getSynthesizerName(uint8 val) private pure returns (string memory) {
-        if (val == 0) return "Lyra";
-        if (val == 1) return "Freak";
-        if (val == 2) return "LFO";
-        if (val == 3) return "Glitch";
+    function getSpeechName(IGenArtMusic.Speech val) private pure returns (string memory) {
+        if (val == IGenArtMusic.Speech.LittleGirl) return "Little girl";
+        if (val == IGenArtMusic.Speech.OldMan) return "Old man";
+        if (val == IGenArtMusic.Speech.FussyMan) return "Fussy man";
+        if (val == IGenArtMusic.Speech.LittleBoy) return "Little boy";
+        if (val == IGenArtMusic.Speech.Shuffle) return "(Shuffle)";
         return "";
     }
 
-    function getMelodyName(uint8 val) private pure returns (string memory) {
-        if (val == 0) return "Piano";
-        if (val == 1) return "Pad";
-        if (val == 2) return "Pluck";
-        if (val == 3) return "Lead";
+    function getDroneName(IGenArtMusic.Drone val) private pure returns (string memory) {
+        if (val == IGenArtMusic.Drone.Lyra) return "Lyra";
+        if (val == IGenArtMusic.Drone.Freak) return "Freak";
+        if (val == IGenArtMusic.Drone.LFO) return "LFO";
+        if (val == IGenArtMusic.Drone.Glitch) return "Glitch";
+        if (val == IGenArtMusic.Drone.Shuffle) return "(Shuffle)";
         return "";
+    }
+
+    function getMelodyName(IGenArtMusic.Melody val) private pure returns (string memory) {
+        if (val == IGenArtMusic.Melody.Piano) return "Piano";
+        if (val == IGenArtMusic.Melody.Pad) return "Pad";
+        if (val == IGenArtMusic.Melody.Pluck) return "Pluck";
+        if (val == IGenArtMusic.Melody.Lead) return "Lead";
+        if (val == IGenArtMusic.Melody.Shuffle) return "(Shuffle)";
+        return "";
+    }
+
+    function supportsInterface(bytes4 _interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
+        return ERC721.supportsInterface(_interfaceId) || super.supportsInterface(_interfaceId);
     }
 }
