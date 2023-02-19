@@ -312,17 +312,17 @@ describe("AsyncToSync", function () {
     expect(await asyncToSync.tokenRemaining()).to.equal(totalNum);
 
     const rarities: { [key: string]: number } = {};
-    const mintedIds: { [key: number]: boolean } = [];
+    const mintedSeeds: { [key: number]: boolean } = [];
     for (let i = 5; i <= 4 + totalNum; i++) {
       const tx = await asyncToSync.mint(deployer.address);
       await tx.wait();
 
-      const musicId = await asyncToSync.tokenIdToMusicIds(i);
-      expect(typeof mintedIds[musicId]).to.equal("undefined");
-      mintedIds[musicId] = true;
+      const seed = await asyncToSync.seeds(i);
+      expect(typeof mintedSeeds[seed]).to.equal("undefined");
+      mintedSeeds[seed] = true;
 
       const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
-      console.log({ rhythm, drone, melody, speech, rarity }, musicId);
+      console.log({ rhythm, drone, melody, speech, rarity }, seed);
       // console.log(await asyncToSync.tokenURI(i));
 
       if (!rarities[rarity]) {
@@ -332,9 +332,9 @@ describe("AsyncToSync", function () {
     }
 
     for (let i = 1; i <= 4; i++) {
-      const musicId = await asyncToSync.tokenIdToMusicIds(i);
+      const seed = await asyncToSync.seeds(i);
       const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
-      console.log({ rhythm, drone, melody, speech, rarity }, musicId);
+      console.log({ rhythm, drone, melody, speech, rarity }, seed);
     }
 
     console.log(await asyncToSync.musicParam(5));

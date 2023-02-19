@@ -11,7 +11,7 @@ import {IRenderer} from "./interfaces/IRenderer.sol";
 contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
     uint16 public tokenRemaining = 128;
-    mapping(uint256 => uint16) public tokenIdToMusicIds;
+    mapping(uint256 => uint16) public seeds;
     mapping(uint16 => uint16) public drawCache;
     IRenderer public renderer;
     string public baseImageUrl;
@@ -55,13 +55,13 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     function mint(address to) external {
         require(totalSupply <= (4 + 128), "all minted");
         uint256 tokenId = ++totalSupply;
-        tokenIdToMusicIds[tokenId] = drawMusicId();
+        seeds[tokenId] = drawSeed();
         _safeMint(to, tokenId);
     }
 
-    function drawMusicId() private returns (uint16 musicId) {
+    function drawSeed() private returns (uint16 seed) {
         uint16 i = uint16(uint(blockhash(block.number - 1)) % tokenRemaining);
-        musicId = drawCache[i] == 0 ? i : drawCache[i];
+        seed = drawCache[i] == 0 ? i : drawCache[i];
         tokenRemaining--;
         drawCache[i] = drawCache[tokenRemaining] == 0 ? tokenRemaining : drawCache[tokenRemaining];
     }
@@ -78,7 +78,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         }
 
         uint16 randomSeed = 111; // TODO:
-        uint8 number = uint8((tokenIdToMusicIds[tokenId] + randomSeed) % 128);
+        uint8 number = uint8((seeds[tokenId] + randomSeed) % 128);
         if (number < 10) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.UltraRare, IAsyncToSync.Rhythm.Shuffle, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Shuffle, IAsyncToSync.Melody.Shuffle);
         } else if (number < 30) {
