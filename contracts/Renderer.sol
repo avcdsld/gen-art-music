@@ -26,11 +26,11 @@ contract Renderer is IRenderer, Ownable {
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>',
             "<script>",
             embedVariable("A2S_TOKEN_ID", Strings.toString(tokenId)),
-            embedVariable("A2S_RARITY", getRarityNum(musicParam.rarity)),
-            embedVariable("A2S_RHYTHM", getRhythmNum(musicParam.rhythm)),
-            embedVariable("A2S_DRONE", getDroneNum(musicParam.drone)),
-            embedVariable("A2S_MELODY", getMelodyNum(musicParam.melody)),
-            embedVariable("A2S_SPEECH", getSpeechNum(musicParam.speech)),
+            embedVariable("A2S_RARITY", getRarity(musicParam.rarity)),
+            embedVariable("A2S_RHYTHM", getRhythm(musicParam.rhythm)),
+            embedVariable("A2S_DRONE", getDrone(musicParam.drone)),
+            embedVariable("A2S_MELODY", getMelody(musicParam.melody)),
+            embedVariable("A2S_SPEECH", getSpeech(musicParam.speech)),
             script,
             "</script>",
             "</head>",
@@ -43,51 +43,51 @@ contract Renderer is IRenderer, Ownable {
     }
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {
-        return string.concat("const ", name, " = ", value, ";");
+        return string.concat("const ", name, " = ", value, ";\n");
     }
 
-    function getRarityNum(IAsyncToSync.Rarity val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Rarity.Common) return "common";
-        if (val == IAsyncToSync.Rarity.Rare) return "rare";
-        if (val == IAsyncToSync.Rarity.SuperRare) return "Super Rare";
-        if (val == IAsyncToSync.Rarity.UltraRare) return "Ultra Rare";
-        if (val == IAsyncToSync.Rarity.OneOfOne) return "1 of 1";
-        return "";
+    function getRarity(IAsyncToSync.Rarity val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Rarity.Common) return '"COMMON"';
+        if (val == IAsyncToSync.Rarity.Rare) return '"RARE"';
+        if (val == IAsyncToSync.Rarity.SuperRare) return '"SUPER_RARE"';
+        if (val == IAsyncToSync.Rarity.UltraRare) return '"ULTRA_RARE"';
+        if (val == IAsyncToSync.Rarity.OneOfOne) return '"ONE_OF_ONE"';
+        return '""';
     }
 
-    function getRhythmNum(IAsyncToSync.Rhythm val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Rhythm.Thick) return "Thick";
-        if (val == IAsyncToSync.Rhythm.LoFi) return "Lo-Fi";
-        if (val == IAsyncToSync.Rhythm.HiFi) return "Hi-Fi";
-        if (val == IAsyncToSync.Rhythm.Glitch) return "Glitch";
-        if (val == IAsyncToSync.Rhythm.Shuffle) return "(Shuffle)";
-        return "";
+    function getRhythm(IAsyncToSync.Rhythm val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Rhythm.Thick) return '"THICK"';
+        if (val == IAsyncToSync.Rhythm.LoFi) return '"LO_FI"';
+        if (val == IAsyncToSync.Rhythm.HiFi) return '"HI_FI"';
+        if (val == IAsyncToSync.Rhythm.Glitch) return '"GLITCH"';
+        if (val == IAsyncToSync.Rhythm.Shuffle) return '"SHUFFLE"';
+        return '""';
     }
 
-    function getSpeechNum(IAsyncToSync.Speech val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Speech.LittleGirl) return "Little girl";
-        if (val == IAsyncToSync.Speech.OldMan) return "Old man";
-        if (val == IAsyncToSync.Speech.FussyMan) return "Fussy man";
-        if (val == IAsyncToSync.Speech.LittleBoy) return "Little boy";
-        if (val == IAsyncToSync.Speech.Shuffle) return "(Shuffle)";
-        return "";
+    function getSpeech(IAsyncToSync.Speech val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Speech.LittleGirl) return '"LITTLE_GIRL"';
+        if (val == IAsyncToSync.Speech.OldMan) return '"OLD_MAN"';
+        if (val == IAsyncToSync.Speech.FussyMan) return '"FUSSY_MAN"';
+        if (val == IAsyncToSync.Speech.LittleBoy) return '"LITTLE_BOY"';
+        if (val == IAsyncToSync.Speech.Shuffle) return '"SHUFFLE"';
+        return '""';
     }
 
-    function getDroneNum(IAsyncToSync.Drone val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Drone.Lyra) return "Lyra";
-        if (val == IAsyncToSync.Drone.Freak) return "Freak";
-        if (val == IAsyncToSync.Drone.LFO) return "LFO";
-        if (val == IAsyncToSync.Drone.Glitch) return "Glitch";
-        if (val == IAsyncToSync.Drone.Shuffle) return "(Shuffle)";
-        return "";
+    function getDrone(IAsyncToSync.Drone val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Drone.Lyra) return '"LYRA"';
+        if (val == IAsyncToSync.Drone.Freak) return '"FREAK"';
+        if (val == IAsyncToSync.Drone.LFO) return '"LFO"';
+        if (val == IAsyncToSync.Drone.Glitch) return '"GLITCH"';
+        if (val == IAsyncToSync.Drone.Shuffle) return '"SHUFFLE"';
+        return '""';
     }
 
-    function getMelodyNum(IAsyncToSync.Melody val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Melody.Piano) return "Piano";
-        if (val == IAsyncToSync.Melody.Pad) return "Pad";
-        if (val == IAsyncToSync.Melody.Pluck) return "Pluck";
-        if (val == IAsyncToSync.Melody.Lead) return "Lead";
-        if (val == IAsyncToSync.Melody.Shuffle) return "(Shuffle)";
-        return "";
+    function getMelody(IAsyncToSync.Melody val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Melody.Piano) return '"PIANO"';
+        if (val == IAsyncToSync.Melody.Pad) return '"PAD"';
+        if (val == IAsyncToSync.Melody.Pluck) return '"PLUCK"';
+        if (val == IAsyncToSync.Melody.Lead) return '"LEAD"';
+        if (val == IAsyncToSync.Melody.Shuffle) return '"SHUFFLE"';
+        return '""';
     }
 }
