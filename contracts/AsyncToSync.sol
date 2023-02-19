@@ -10,9 +10,16 @@ import {IRenderer} from "./interfaces/IRenderer.sol";
 
 contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
-    uint16 public tokenRemaining = 128;
-    mapping(uint256 => uint16) public seeds;
-    mapping(uint16 => uint16) public drawCache;
+
+    uint256 public revealSeed;
+    uint256 public blockNumberForRevealSeed;
+    bool public revealed = false;
+
+    uint8 public maxDrawsCount = 128;
+    uint8 public tokenRemaining = 128;
+    mapping(uint256 => uint8) public seeds;
+    mapping(uint8 => uint8) public drawCache;
+
     IRenderer public renderer;
     string public baseImageUrl;
     string public baseAnimationUrl;
@@ -52,15 +59,31 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         _setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);
     }
 
+    // Important: `reveal()` must be execulted within 250 blocks after this function is executed.
+    function preReveal() external onlyOwner {
+        require(blockNumberForRevealSeed == 0, "not first time");
+        blockNumberForRevealSeed = block.number;
+    }
+
+    function reveal() external onlyOwner {
+        require(blockNumberForRevealSeed > 0, "must be preRevealed");
+        require(!revealed, "already revealed");
+        revealed = true;
+        revealSeed = uint256(blockhash(blockNumberForRevealSeed));
+    }
+
     function mint(address to) external {
-        require(totalSupply <= (4 + 128), "all minted");
+        require(totalSupply <= (4 + maxDrawsCount), "all minted");
         uint256 tokenId = ++totalSupply;
         seeds[tokenId] = drawSeed();
         _safeMint(to, tokenId);
     }
 
-    function drawSeed() private returns (uint16 seed) {
-        uint16 i = uint16(uint(blockhash(block.number - 1)) % tokenRemaining);
+    // Original code by Ping Chen. https://medium.com/taipei-ethereum-meetup/gas-efficient-card-drawing-in-solidity-af49bb135a08
+    function drawSeed() private returns (uint8 seed) {
+        uint160 seedFromOwner = uint160(_ownerOf(totalSupply - 1));
+        uint256 seedFromBlock = uint(blockhash(block.number - 1));
+        uint8 i = uint8((seedFromOwner + seedFromBlock) % tokenRemaining);
         seed = drawCache[i] == 0 ? i : drawCache[i];
         tokenRemaining--;
         drawCache[i] = drawCache[tokenRemaining] == 0 ? tokenRemaining : drawCache[tokenRemaining];
@@ -77,8 +100,9 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Thick, IAsyncToSync.Speech.LittleGirl, IAsyncToSync.Drone.Lyra, IAsyncToSync.Melody.Piano);
         }
 
-        uint16 randomSeed = 111; // TODO:
-        uint8 number = uint8((seeds[tokenId] + randomSeed) % 128);
+        require(revealed, "not revealed");
+
+        uint8 number = uint8((seeds[tokenId] + revealSeed) % maxDrawsCount);
         if (number < 10) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.UltraRare, IAsyncToSync.Rhythm.Shuffle, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Shuffle, IAsyncToSync.Melody.Shuffle);
         } else if (number < 30) {
@@ -99,7 +123,35 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function getMetadata(uint256 tokenId) private view returns (string memory) {
-        IAsyncToSync.MusicParam memory param = musicParam(tokenId);
+        if (revealed) {
+            IAsyncToSync.MusicParam memory param = musicParam(tokenId);
+            return
+                string.concat(
+                    '{"name":"AsyncToSync #',
+                    Strings.toString(tokenId),
+                    '","description":"',
+                    _description,
+                    '","image":"',
+                    baseImageUrl,
+                    Strings.toString(tokenId),
+                    '","animation_url":"',
+                    getImage(tokenId, param),
+                    '","external_url":"',
+                    _baseExternalUrl,
+                    Strings.toString(tokenId),
+                    '","attributes":[{"trait_type":"Rarity","value":"',
+                    getRarity(param.rarity),
+                    '"},{"trait_type":"Rhythm","value":"',
+                    getRhythmName(param.rhythm),
+                    '"},{"trait_type":"Drone","value":"',
+                    getDroneName(param.drone),
+                    '"},{"trait_type":"Melody","value":"',
+                    getMelodyName(param.melody),
+                    '"},{"trait_type":"Speech","value":"',
+                    getSpeechName(param.speech),
+                    '"}]}'
+                );
+        }
         return
             string.concat(
                 '{"name":"AsyncToSync #',
@@ -109,22 +161,10 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
                 '","image":"',
                 baseImageUrl,
                 Strings.toString(tokenId),
-                '","animation_url":"',
-                getImage(tokenId, param),
                 '","external_url":"',
                 _baseExternalUrl,
                 Strings.toString(tokenId),
-                '","attributes":[{"trait_type":"Rarity","value":"',
-                getRarity(param.rarity),
-                '"},{"trait_type":"Rhythm","value":"',
-                getRhythmName(param.rhythm),
-                '"},{"trait_type":"Drone","value":"',
-                getDroneName(param.drone),
-                '"},{"trait_type":"Melody","value":"',
-                getMelodyName(param.melody),
-                '"},{"trait_type":"Speech","value":"',
-                getSpeechName(param.speech),
-                '"}]}'
+                '","attributes":[{"trait_type":"Rarity","value":"Unknown"}]}'
             );
     }
 

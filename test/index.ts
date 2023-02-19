@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+const crypto = require("crypto");
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
 // const soundFileName = numToAscii(A2S_RHYTHM) + numToAscii(A2S_SPEECH) + numToAscii(A2S_DRONE) + numToAscii(A2S_MELODY) + ".mp3";
@@ -295,10 +296,15 @@ function mouseClicked() {
   }
 }`;
 
+const genRandomAddress = () => {
+  const id = crypto.randomBytes(32).toString("hex");
+  const privateKey = "0x" + id;
+  const wallet = new ethers.Wallet(privateKey);
+  return wallet.address;
+}
+
 describe("AsyncToSync", function () {
   it("should mint randomly", async function () {
-    const [deployer] = await ethers.getSigners();
-
     const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
     await renderer.deployed();
     const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
@@ -314,16 +320,24 @@ describe("AsyncToSync", function () {
     const rarities: { [key: string]: number } = {};
     const mintedSeeds: { [key: number]: boolean } = [];
     for (let i = 5; i <= 4 + totalNum; i++) {
-      const tx = await asyncToSync.mint(deployer.address);
+      const tx = await asyncToSync.mint(genRandomAddress());
       await tx.wait();
+    }
 
+    console.log(await asyncToSync.tokenURI(5));
+
+    const preRevealTx = await asyncToSync.preReveal();
+    await preRevealTx.wait();
+    const revealTx = await asyncToSync.reveal();
+    await revealTx.wait();
+
+    for (let i = 5; i <= 4 + totalNum; i++) {
       const seed = await asyncToSync.seeds(i);
       expect(typeof mintedSeeds[seed]).to.equal("undefined");
       mintedSeeds[seed] = true;
 
       const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
       console.log({ rhythm, drone, melody, speech, rarity }, seed);
-      // console.log(await asyncToSync.tokenURI(i));
 
       if (!rarities[rarity]) {
         rarities[rarity] = 0;
