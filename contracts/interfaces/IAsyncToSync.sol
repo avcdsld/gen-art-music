@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-interface IGenArtMusic {
+interface IAsyncToSync {
     struct MusicParam {
         Rarity rarity;
         Rhythm rhythm;

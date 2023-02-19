@@ -1,9 +1,8 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { string } from "hardhat/internal/core/params/argumentTypes";
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
-// const soundFileName = numToAscii(GAM_RHYTHM) + numToAscii(GAM_SPEECH) + numToAscii(GAM_SYNTHESIZER) + numToAscii(GAM_MELODY) + ".mp3";
+// const soundFileName = numToAscii(A2S_RHYTHM) + numToAscii(A2S_SPEECH) + numToAscii(A2S_DRONE) + numToAscii(A2S_MELODY) + ".mp3";
 const soundFileName = "DDDC.mp3";
 let sound;
 let fft;
@@ -296,35 +295,35 @@ function mouseClicked() {
   }
 }`;
 
-describe("GenArtMusic", function () {
+describe("AsyncToSync", function () {
   it("should mint randomly", async function () {
     const [deployer] = await ethers.getSigners();
 
     const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
     await renderer.deployed();
-    const genArtMusic = await (await ethers.getContractFactory("GenArtMusic")).deploy(renderer.address);
-    await genArtMusic.deployed();
+    const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
+    await asyncToSync.deployed();
 
     await (await renderer.setScript(script)).wait();
-    await (await genArtMusic.setRenderer(renderer.address)).wait();
-    await (await genArtMusic.setBaseImageUrl("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#")).wait();
+    await (await asyncToSync.setRenderer(renderer.address)).wait();
+    await (await asyncToSync.setBaseImageUrl("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#")).wait();
 
     const totalNum = 128;
-    expect(await genArtMusic.tokenRemaining()).to.equal(totalNum);
+    expect(await asyncToSync.tokenRemaining()).to.equal(totalNum);
 
     const rarities: { [key: string]: number } = {};
     const mintedIds: { [key: number]: boolean } = [];
     for (let i = 5; i <= 4 + totalNum; i++) {
-      const tx = await genArtMusic.mint(deployer.address);
+      const tx = await asyncToSync.mint(deployer.address);
       await tx.wait();
 
-      const musicId = await genArtMusic.tokenIdToMusicIds(i);
+      const musicId = await asyncToSync.tokenIdToMusicIds(i);
       expect(typeof mintedIds[musicId]).to.equal("undefined");
       mintedIds[musicId] = true;
 
-      const { rhythm, drone, melody, speech, rarity } = await genArtMusic.musicParam(i);
+      const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
       console.log({ rhythm, drone, melody, speech, rarity }, musicId);
-      // console.log(await genArtMusic.tokenURI(i));
+      // console.log(await asyncToSync.tokenURI(i));
 
       if (!rarities[rarity]) {
         rarities[rarity] = 0;
@@ -332,8 +331,14 @@ describe("GenArtMusic", function () {
       rarities[rarity]++;
     }
 
-    console.log(await genArtMusic.musicParam(1));
-    console.log(await genArtMusic.tokenURI(1));
+    for (let i = 1; i <= 4; i++) {
+      const musicId = await asyncToSync.tokenIdToMusicIds(i);
+      const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
+      console.log({ rhythm, drone, melody, speech, rarity }, musicId);
+    }
+
+    console.log(await asyncToSync.musicParam(5));
+    console.log(await asyncToSync.tokenURI(5));
 
     console.log({ rarities });
   });

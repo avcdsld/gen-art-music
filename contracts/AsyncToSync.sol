@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import {IGenArtMusic} from "./interfaces/IGenArtMusic.sol";
+import {IAsyncToSync} from "./interfaces/IAsyncToSync.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
 
-contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
+contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
     uint16 public tokenRemaining = 128;
     mapping(uint256 => uint16) public tokenIdToMusicIds;
@@ -19,7 +19,7 @@ contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
     string private _description;
     string private _baseExternalUrl;
 
-    constructor(address rendererAddress) ERC721("GenArtMusic", "GAM") {
+    constructor(address rendererAddress) ERC721("AsyncToSync", "A2S") {
         renderer = IRenderer(rendererAddress);
         totalSupply = 4;
         _mint(_msgSender(), 1);
@@ -66,30 +66,30 @@ contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
         drawCache[i] = drawCache[tokenRemaining] == 0 ? tokenRemaining : drawCache[tokenRemaining];
     }
 
-    function musicParam(uint256 tokenId) public view returns (IGenArtMusic.MusicParam memory) {
+    function musicParam(uint256 tokenId) public view returns (IAsyncToSync.MusicParam memory) {
         if (tokenId == 1) {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.Glitch, IGenArtMusic.Speech.LittleBoy, IGenArtMusic.Drone.Glitch, IGenArtMusic.Melody.Lead);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Glitch, IAsyncToSync.Speech.LittleBoy, IAsyncToSync.Drone.Glitch, IAsyncToSync.Melody.Lead);
         } else if (tokenId == 2) {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.HiFi, IGenArtMusic.Speech.FussyMan, IGenArtMusic.Drone.LFO, IGenArtMusic.Melody.Pluck);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.HiFi, IAsyncToSync.Speech.FussyMan, IAsyncToSync.Drone.LFO, IAsyncToSync.Melody.Pluck);
         } else if (tokenId == 3) {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.LoFi, IGenArtMusic.Speech.OldMan, IGenArtMusic.Drone.Freak, IGenArtMusic.Melody.Pad);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.LoFi, IAsyncToSync.Speech.OldMan, IAsyncToSync.Drone.Freak, IAsyncToSync.Melody.Pad);
         } else if (tokenId == 4) {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.OneOfOne, IGenArtMusic.Rhythm.LoFi, IGenArtMusic.Speech.OldMan, IGenArtMusic.Drone.Freak, IGenArtMusic.Melody.Pad);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Thick, IAsyncToSync.Speech.LittleGirl, IAsyncToSync.Drone.Lyra, IAsyncToSync.Melody.Piano);
         }
 
         uint16 randomSeed = 111; // TODO:
         uint8 number = uint8((tokenIdToMusicIds[tokenId] + randomSeed) % 128);
         if (number < 10) {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.UltraRare, IGenArtMusic.Rhythm.Shuffle, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, IGenArtMusic.Melody.Shuffle);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.UltraRare, IAsyncToSync.Rhythm.Shuffle, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Shuffle, IAsyncToSync.Melody.Shuffle);
         } else if (number < 30) {
-            IGenArtMusic.Rhythm rhythm = number % 4 == 0 ? IGenArtMusic.Rhythm.Thick : number % 4 == 1 ? IGenArtMusic.Rhythm.LoFi : number % 4 == 2 ? IGenArtMusic.Rhythm.HiFi : IGenArtMusic.Rhythm.Glitch;
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.SuperRare, rhythm, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, IGenArtMusic.Melody.Shuffle);
+            IAsyncToSync.Rhythm rhythm = number % 4 == 0 ? IAsyncToSync.Rhythm.Thick : number % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : number % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.SuperRare, rhythm, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Shuffle, IAsyncToSync.Melody.Shuffle);
         } else if (number < 54) {
-            IGenArtMusic.Rhythm rhythm = number % 4 == 0 ? IGenArtMusic.Rhythm.Thick : number % 4 == 1 ? IGenArtMusic.Rhythm.LoFi : number % 4 == 2 ? IGenArtMusic.Rhythm.HiFi : IGenArtMusic.Rhythm.Glitch;
-            IGenArtMusic.Melody melody = number % 4 == 0 ? IGenArtMusic.Melody.Piano : number % 4 == 1 ? IGenArtMusic.Melody.Pad : number % 4 == 2 ? IGenArtMusic.Melody.Pluck : IGenArtMusic.Melody.Lead;
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.Rare, rhythm, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Shuffle, melody);
+            IAsyncToSync.Rhythm rhythm = number % 4 == 0 ? IAsyncToSync.Rhythm.Thick : number % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : number % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
+            IAsyncToSync.Melody melody = number % 4 == 0 ? IAsyncToSync.Melody.Piano : number % 4 == 1 ? IAsyncToSync.Melody.Pad : number % 4 == 2 ? IAsyncToSync.Melody.Pluck : IAsyncToSync.Melody.Lead;
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.Rare, rhythm, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Shuffle, melody);
         } else {
-            return IGenArtMusic.MusicParam(IGenArtMusic.Rarity.Common, IGenArtMusic.Rhythm.Glitch, IGenArtMusic.Speech.Shuffle, IGenArtMusic.Drone.Glitch, IGenArtMusic.Melody.Lead);
+            return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.Common, IAsyncToSync.Rhythm.Glitch, IAsyncToSync.Speech.Shuffle, IAsyncToSync.Drone.Glitch, IAsyncToSync.Melody.Lead);
         }
     }
 
@@ -99,10 +99,10 @@ contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
     }
 
     function getMetadata(uint256 tokenId) private view returns (string memory) {
-        IGenArtMusic.MusicParam memory param = musicParam(tokenId);
+        IAsyncToSync.MusicParam memory param = musicParam(tokenId);
         return
             string.concat(
-                '{"name":"GenArtMusic #',
+                '{"name":"AsyncToSync #',
                 Strings.toString(tokenId),
                 '","description":"',
                 _description,
@@ -135,48 +135,48 @@ contract GenArtMusic is IGenArtMusic, ERC721, ERC2981, Ownable {
         return renderer.dataURI(tokenId, param);
     }
 
-    function getRarity(IGenArtMusic.Rarity val) private pure returns (string memory) {
-        if (val == IGenArtMusic.Rarity.Common) return "Common";
-        if (val == IGenArtMusic.Rarity.Rare) return "Rare";
-        if (val == IGenArtMusic.Rarity.SuperRare) return "Super Rare";
-        if (val == IGenArtMusic.Rarity.UltraRare) return "Ultra Rare";
-        if (val == IGenArtMusic.Rarity.OneOfOne) return "1 of 1";
+    function getRarity(IAsyncToSync.Rarity val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Rarity.Common) return "Common";
+        if (val == IAsyncToSync.Rarity.Rare) return "Rare";
+        if (val == IAsyncToSync.Rarity.SuperRare) return "Super Rare";
+        if (val == IAsyncToSync.Rarity.UltraRare) return "Ultra Rare";
+        if (val == IAsyncToSync.Rarity.OneOfOne) return "1 of 1";
         return "";
     }
 
-    function getRhythmName(IGenArtMusic.Rhythm val) private pure returns (string memory) {
-        if (val == IGenArtMusic.Rhythm.Thick) return "Thick";
-        if (val == IGenArtMusic.Rhythm.LoFi) return "Lo-Fi";
-        if (val == IGenArtMusic.Rhythm.HiFi) return "Hi-Fi";
-        if (val == IGenArtMusic.Rhythm.Glitch) return "Glitch";
-        if (val == IGenArtMusic.Rhythm.Shuffle) return "(Shuffle)";
+    function getRhythmName(IAsyncToSync.Rhythm val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Rhythm.Thick) return "Thick";
+        if (val == IAsyncToSync.Rhythm.LoFi) return "Lo-Fi";
+        if (val == IAsyncToSync.Rhythm.HiFi) return "Hi-Fi";
+        if (val == IAsyncToSync.Rhythm.Glitch) return "Glitch";
+        if (val == IAsyncToSync.Rhythm.Shuffle) return "(Shuffle)";
         return "";
     }
 
-    function getSpeechName(IGenArtMusic.Speech val) private pure returns (string memory) {
-        if (val == IGenArtMusic.Speech.LittleGirl) return "Little girl";
-        if (val == IGenArtMusic.Speech.OldMan) return "Old man";
-        if (val == IGenArtMusic.Speech.FussyMan) return "Fussy man";
-        if (val == IGenArtMusic.Speech.LittleBoy) return "Little boy";
-        if (val == IGenArtMusic.Speech.Shuffle) return "(Shuffle)";
+    function getSpeechName(IAsyncToSync.Speech val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Speech.LittleGirl) return "Little girl";
+        if (val == IAsyncToSync.Speech.OldMan) return "Old man";
+        if (val == IAsyncToSync.Speech.FussyMan) return "Fussy man";
+        if (val == IAsyncToSync.Speech.LittleBoy) return "Little boy";
+        if (val == IAsyncToSync.Speech.Shuffle) return "(Shuffle)";
         return "";
     }
 
-    function getDroneName(IGenArtMusic.Drone val) private pure returns (string memory) {
-        if (val == IGenArtMusic.Drone.Lyra) return "Lyra";
-        if (val == IGenArtMusic.Drone.Freak) return "Freak";
-        if (val == IGenArtMusic.Drone.LFO) return "LFO";
-        if (val == IGenArtMusic.Drone.Glitch) return "Glitch";
-        if (val == IGenArtMusic.Drone.Shuffle) return "(Shuffle)";
+    function getDroneName(IAsyncToSync.Drone val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Drone.Lyra) return "Lyra";
+        if (val == IAsyncToSync.Drone.Freak) return "Freak";
+        if (val == IAsyncToSync.Drone.LFO) return "LFO";
+        if (val == IAsyncToSync.Drone.Glitch) return "Glitch";
+        if (val == IAsyncToSync.Drone.Shuffle) return "(Shuffle)";
         return "";
     }
 
-    function getMelodyName(IGenArtMusic.Melody val) private pure returns (string memory) {
-        if (val == IGenArtMusic.Melody.Piano) return "Piano";
-        if (val == IGenArtMusic.Melody.Pad) return "Pad";
-        if (val == IGenArtMusic.Melody.Pluck) return "Pluck";
-        if (val == IGenArtMusic.Melody.Lead) return "Lead";
-        if (val == IGenArtMusic.Melody.Shuffle) return "(Shuffle)";
+    function getMelodyName(IAsyncToSync.Melody val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Melody.Piano) return "Piano";
+        if (val == IAsyncToSync.Melody.Pad) return "Pad";
+        if (val == IAsyncToSync.Melody.Pluck) return "Pluck";
+        if (val == IAsyncToSync.Melody.Lead) return "Lead";
+        if (val == IAsyncToSync.Melody.Shuffle) return "(Shuffle)";
         return "";
     }
 

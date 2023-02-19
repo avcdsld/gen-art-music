@@ -298,12 +298,12 @@ async function main() {
   await renderer.deployed();
   console.log("Renderer deployed to:", renderer.address);
 
-  const genArtMusic = await (await ethers.getContractFactory("GenArtMusic")).deploy(renderer.address);
-  await genArtMusic.deployed();
-  console.log("GenArtMusic deployed to:", genArtMusic.address);
+  const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
+  await asyncToSync.deployed();
+  console.log("AsyncToSync deployed to:", asyncToSync.address);
 
   const baseImageUrl = "https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#";
-  const txSetBaseImageUrl = await genArtMusic.setBaseImageUrl(baseImageUrl);
+  const txSetBaseImageUrl = await asyncToSync.setBaseImageUrl(baseImageUrl);
   console.log("txSetBaseImageUrl: ", txSetBaseImageUrl.hash);
   await txSetBaseImageUrl.wait();
 

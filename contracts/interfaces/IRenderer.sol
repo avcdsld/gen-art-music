@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {IGenArtMusic} from "./IGenArtMusic.sol";
+import {IAsyncToSync} from "./IAsyncToSync.sol";
 
 interface IRenderer {
-    function dataURI(uint256 tokenId, IGenArtMusic.MusicParam memory musicParam) external view returns (string memory);
+    function dataURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory);
 }
