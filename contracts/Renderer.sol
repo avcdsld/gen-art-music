@@ -7,9 +7,29 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import {IAsyncToSync} from "./interfaces/IAsyncToSync.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
+import {ICutUpGenerator} from "./interfaces/ICutUpGenerator.sol";
+
+interface ITerraNullius {
+    struct Claim {
+        address claimant;
+        string message;
+        uint blockNumber;
+    }
+
+    function claims(uint256 index) external returns (Claim memory);
+}
 
 contract Renderer is IRenderer, Ownable {
+    ICutUpGenerator public cutUpGenerator;
     string public script;
+
+    constructor(address cutUpGeneratorAddress) {
+        cutUpGenerator = ICutUpGenerator(cutUpGeneratorAddress);
+    }
+
+    function setCutUpGenerator(address cutUpGeneratorAddress) external onlyOwner {
+        cutUpGenerator = ICutUpGenerator(cutUpGeneratorAddress);
+    }
 
     function setScript(string memory _script) external onlyOwner {
         script = _script;
@@ -20,11 +40,14 @@ contract Renderer is IRenderer, Ownable {
             "<html>",
             "<head>",
             '<meta name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0" />',
+            "\n<!--\n",
+            embedCutUp(),
+            "\n-->\n",
             "<style>body { padding: 0; margin: 0; }</style>",
             '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>',
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>',
-            "<script>",
+            "\n<script>\n",
             embedVariable("A2S_TOKEN_ID", Strings.toString(tokenId)),
             embedVariable("A2S_RARITY", getRarity(musicParam.rarity)),
             embedVariable("A2S_RHYTHM", getRhythm(musicParam.rhythm)),
@@ -32,7 +55,7 @@ contract Renderer is IRenderer, Ownable {
             embedVariable("A2S_MELODY", getMelody(musicParam.melody)),
             embedVariable("A2S_SPEECH", getSpeech(musicParam.speech)),
             script,
-            "</script>",
+            "\n</script>\n",
             "</head>",
             "<body>",
             "<main></main>",
@@ -40,6 +63,12 @@ contract Renderer is IRenderer, Ownable {
             "</html>"
         );
         return string.concat("data:text/html;charset=UTF-8;base64,", Base64.encode(bytes(imageData)));
+    }
+
+    function embedCutUp() private view returns (string memory) {
+        bytes32 seed = blockhash(block.number - 1);
+        string memory cutUp = cutUpGenerator.cutUp(seed);
+        return Base64.encode(bytes(cutUp));
     }
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {

@@ -305,10 +305,19 @@ const genRandomAddress = () => {
 
 describe("AsyncToSync", function () {
   it("should mint randomly", async function () {
-    const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
+    const terraNullius = await (await ethers.getContractFactory("TerraNullius")).deploy();
+    await terraNullius.deployed();
+    const cutUpGenerator = await (await ethers.getContractFactory("CutUpGenerator")).deploy(terraNullius.address);
+    await cutUpGenerator.deployed();
+    const renderer = await (await ethers.getContractFactory("Renderer")).deploy(cutUpGenerator.address);
     await renderer.deployed();
     const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
     await asyncToSync.deployed();
+
+    for (let i = 0; i < 40; i++) {
+      const tx = await terraNullius.claim("test" + i);
+      await tx.wait();
+    }
 
     await (await renderer.setScript(script)).wait();
     await (await asyncToSync.setRenderer(renderer.address)).wait();
