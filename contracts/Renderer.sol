@@ -9,16 +9,6 @@ import {IAsyncToSync} from "./interfaces/IAsyncToSync.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
 import {ICutUpGenerator} from "./interfaces/ICutUpGenerator.sol";
 
-interface ITerraNullius {
-    struct Claim {
-        address claimant;
-        string message;
-        uint blockNumber;
-    }
-
-    function claims(uint256 index) external returns (Claim memory);
-}
-
 contract Renderer is IRenderer, Ownable {
     ICutUpGenerator public cutUpGenerator;
     string public script;
