@@ -41,9 +41,9 @@ contract Renderer is IRenderer, Ownable {
             embedVariable("A2S_TOKEN_ID", Strings.toString(tokenId)),
             embedVariable("A2S_RARITY", getRarity(musicParam.rarity)),
             embedVariable("A2S_RHYTHM", getRhythm(musicParam.rhythm)),
-            embedVariable("A2S_DRONE", getDrone(musicParam.drone)),
-            embedVariable("A2S_MELODY", getMelody(musicParam.melody)),
-            embedVariable("A2S_SPEECH", getSpeech(musicParam.speech)),
+            embedVariable("A2S_OSCILLATOR", getOscillator(musicParam.oscillator)),
+            embedVariable("A2S_ADSR", getADSR(musicParam.adsr)),
+            embedVariable("A2S_LYRIC", getLyric(musicParam.lyric)),
             script,
             "\n</script>\n",
             "</head>",
@@ -83,30 +83,30 @@ contract Renderer is IRenderer, Ownable {
         return '""';
     }
 
-    function getSpeech(IAsyncToSync.Speech val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Speech.LittleGirl) return '"LITTLE_GIRL"';
-        if (val == IAsyncToSync.Speech.OldMan) return '"OLD_MAN"';
-        if (val == IAsyncToSync.Speech.FussyMan) return '"FUSSY_MAN"';
-        if (val == IAsyncToSync.Speech.LittleBoy) return '"LITTLE_BOY"';
-        if (val == IAsyncToSync.Speech.Shuffle) return '"SHUFFLE"';
+    function getLyric(IAsyncToSync.Lyric val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Lyric.LittleGirl) return '"LITTLE_GIRL"';
+        if (val == IAsyncToSync.Lyric.OldMan) return '"OLD_MAN"';
+        if (val == IAsyncToSync.Lyric.FussyMan) return '"FUSSY_MAN"';
+        if (val == IAsyncToSync.Lyric.LittleBoy) return '"LITTLE_BOY"';
+        if (val == IAsyncToSync.Lyric.Shuffle) return '"SHUFFLE"';
         return '""';
     }
 
-    function getDrone(IAsyncToSync.Drone val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Drone.Lyra) return '"LYRA"';
-        if (val == IAsyncToSync.Drone.Freak) return '"FREAK"';
-        if (val == IAsyncToSync.Drone.LFO) return '"LFO"';
-        if (val == IAsyncToSync.Drone.Glitch) return '"GLITCH"';
-        if (val == IAsyncToSync.Drone.Shuffle) return '"SHUFFLE"';
+    function getOscillator(IAsyncToSync.Oscillator val) private pure returns (string memory) {
+        if (val == IAsyncToSync.Oscillator.Lyra) return '"LYRA"';
+        if (val == IAsyncToSync.Oscillator.Freak) return '"FREAK"';
+        if (val == IAsyncToSync.Oscillator.LFO) return '"LFO"';
+        if (val == IAsyncToSync.Oscillator.Glitch) return '"GLITCH"';
+        if (val == IAsyncToSync.Oscillator.Shuffle) return '"SHUFFLE"';
         return '""';
     }
 
-    function getMelody(IAsyncToSync.Melody val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Melody.Piano) return '"PIANO"';
-        if (val == IAsyncToSync.Melody.Pad) return '"PAD"';
-        if (val == IAsyncToSync.Melody.Pluck) return '"PLUCK"';
-        if (val == IAsyncToSync.Melody.Lead) return '"LEAD"';
-        if (val == IAsyncToSync.Melody.Shuffle) return '"SHUFFLE"';
+    function getADSR(IAsyncToSync.ADSR val) private pure returns (string memory) {
+        if (val == IAsyncToSync.ADSR.Piano) return '"PIANO"';
+        if (val == IAsyncToSync.ADSR.Pad) return '"PAD"';
+        if (val == IAsyncToSync.ADSR.Pluck) return '"PLUCK"';
+        if (val == IAsyncToSync.ADSR.Lead) return '"LEAD"';
+        if (val == IAsyncToSync.ADSR.Shuffle) return '"SHUFFLE"';
         return '""';
     }
 }

@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 const crypto = require("crypto");
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
-// const soundFileName = numToAscii(A2S_RHYTHM) + numToAscii(A2S_SPEECH) + numToAscii(A2S_DRONE) + numToAscii(A2S_MELODY) + ".mp3";
+// const soundFileName = numToAscii(A2S_RHYTHM) + numToAscii(A2S_LYRIC) + numToAscii(A2S_OSCILLATOR) + numToAscii(A2S_ADSR) + ".mp3";
 const soundFileName = "DDDC.mp3";
 let sound;
 let fft;
@@ -345,8 +345,8 @@ describe("AsyncToSync", function () {
       expect(typeof mintedSeeds[seed]).to.equal("undefined");
       mintedSeeds[seed] = true;
 
-      const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
-      console.log({ rhythm, drone, melody, speech, rarity }, seed);
+      const { rhythm, oscillator, adsr, lyric, rarity } = await asyncToSync.musicParam(i);
+      console.log({ rhythm, oscillator, adsr, lyric, rarity }, seed);
 
       if (!rarities[rarity]) {
         rarities[rarity] = 0;
@@ -356,8 +356,8 @@ describe("AsyncToSync", function () {
 
     for (let i = 1; i <= 4; i++) {
       const seed = await asyncToSync.seeds(i);
-      const { rhythm, drone, melody, speech, rarity } = await asyncToSync.musicParam(i);
-      console.log({ rhythm, drone, melody, speech, rarity }, seed);
+      const { rhythm, oscillator, adsr, lyric, rarity } = await asyncToSync.musicParam(i);
+      console.log({ rhythm, oscillator, adsr, lyric, rarity }, seed);
     }
 
     console.log(await asyncToSync.musicParam(5));

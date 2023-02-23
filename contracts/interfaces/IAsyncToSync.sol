@@ -5,9 +5,9 @@ interface IAsyncToSync {
     struct MusicParam {
         Rarity rarity;
         Rhythm rhythm;
-        Speech speech;
-        Drone drone;
-        Melody melody;
+        Lyric lyric;
+        Oscillator oscillator;
+        ADSR adsr;
     }
 
     enum Rarity {
@@ -26,7 +26,7 @@ interface IAsyncToSync {
         Shuffle
     }
 
-    enum Speech {
+    enum Lyric {
         LittleGirl,
         OldMan,
         FussyMan,
@@ -34,7 +34,7 @@ interface IAsyncToSync {
         Shuffle
     }
 
-    enum Drone {
+    enum Oscillator {
         Lyra,
         Freak,
         LFO,
@@ -42,7 +42,7 @@ interface IAsyncToSync {
         Shuffle
     }
 
-    enum Melody {
+    enum ADSR {
         Piano,
         Pad,
         Pluck,

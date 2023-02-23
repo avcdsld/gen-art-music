@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 const script = `const numToAscii = (num) => (num === 0 ? "A" : num === 1 ? "B" : num === 2 ? "C" : "D");
-// const soundFileName = numToAscii(GAM_RHYTHM) + numToAscii(GAM_SPEECH) + numToAscii(GAM_SYNTHESIZER) + numToAscii(GAM_MELODY) + ".mp3";
+// const soundFileName = numToAscii(GAM_RHYTHM) + numToAscii(GAM_LYRIC) + numToAscii(GAM_SYNTHESIZER) + numToAscii(GAM_ADSR) + ".mp3";
 const soundFileName = "DDDC.mp3";
 let sound;
 let fft;
@@ -294,28 +294,28 @@ function mouseClicked() {
 }`;
 
 async function main() {
-  const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
-  await renderer.deployed();
-  console.log("Renderer deployed to:", renderer.address);
+	const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
+	await renderer.deployed();
+	console.log("Renderer deployed to:", renderer.address);
 
-  const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
-  await asyncToSync.deployed();
-  console.log("AsyncToSync deployed to:", asyncToSync.address);
+	const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
+	await asyncToSync.deployed();
+	console.log("AsyncToSync deployed to:", asyncToSync.address);
 
-  const baseImageUrl = "https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#";
-  const txSetBaseImageUrl = await asyncToSync.setBaseImageUrl(baseImageUrl);
-  console.log("txSetBaseImageUrl: ", txSetBaseImageUrl.hash);
-  await txSetBaseImageUrl.wait();
+	const baseImageUrl = "https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#";
+	const txSetBaseImageUrl = await asyncToSync.setBaseImageUrl(baseImageUrl);
+	console.log("txSetBaseImageUrl: ", txSetBaseImageUrl.hash);
+	await txSetBaseImageUrl.wait();
 
-  // MEMO: Error occurs in Goerli
-  // const gasLimit = Math.floor(Number((await renderer.estimateGas.setScript(script)).toNumber()) * 1.1)
-  const gasLimit = 4000000;
-  const txSetScript = await renderer.setScript(script, { gasLimit });
-  console.log("txSetScript: ", txSetScript.hash);
-  await txSetScript.wait();
+	// MEMO: Error occurs in Goerli
+	// const gasLimit = Math.floor(Number((await renderer.estimateGas.setScript(script)).toNumber()) * 1.1)
+	const gasLimit = 4000000;
+	const txSetScript = await renderer.setScript(script, { gasLimit });
+	console.log("txSetScript: ", txSetScript.hash);
+	await txSetScript.wait();
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+	console.error(error);
+	process.exitCode = 1;
 });
