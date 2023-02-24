@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {ICutUpGenerator} from "./interfaces/ICutUpGenerator.sol";
+import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 
 interface ITerraNullius {
     struct Claim {
@@ -14,7 +14,7 @@ interface ITerraNullius {
     function claims(uint256) external view returns (address, string memory, uint256);
 }
 
-contract CutUpGenerator is ICutUpGenerator {
+contract CutUpGeneration is ICutUpGeneration {
     ITerraNullius public terraNullius;
     uint256 public maxSupply = 40; // 4000; // TODO: change
 

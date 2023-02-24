@@ -307,7 +307,7 @@ describe("AsyncToSync", function () {
   it("should mint randomly", async function () {
     const terraNullius = await (await ethers.getContractFactory("TerraNullius")).deploy();
     await terraNullius.deployed();
-    const cutUpGenerator = await (await ethers.getContractFactory("CutUpGenerator")).deploy(terraNullius.address);
+    const cutUpGenerator = await (await ethers.getContractFactory("CutUpGeneration")).deploy(terraNullius.address);
     await cutUpGenerator.deployed();
     const renderer = await (await ethers.getContractFactory("Renderer")).deploy(cutUpGenerator.address);
     await renderer.deployed();

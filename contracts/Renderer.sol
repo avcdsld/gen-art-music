@@ -7,18 +7,18 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import {IAsyncToSync} from "./interfaces/IAsyncToSync.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
-import {ICutUpGenerator} from "./interfaces/ICutUpGenerator.sol";
+import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 
 contract Renderer is IRenderer, Ownable {
-    ICutUpGenerator public cutUpGenerator;
+    ICutUpGeneration public cutUpGenerator;
     string public script;
 
     constructor(address cutUpGeneratorAddress) {
-        cutUpGenerator = ICutUpGenerator(cutUpGeneratorAddress);
+        cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
     }
 
-    function setCutUpGenerator(address cutUpGeneratorAddress) external onlyOwner {
-        cutUpGenerator = ICutUpGenerator(cutUpGeneratorAddress);
+    function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {
+        cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
     }
 
     function setScript(string memory _script) external onlyOwner {
