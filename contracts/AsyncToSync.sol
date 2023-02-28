@@ -59,10 +59,10 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         _setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);
     }
 
-    // Important: `reveal()` must be execulted within 250 blocks after this function is executed.
+    // Important: `reveal()` must be execulted within 256 blocks after this function is executed.
     function preReveal() external onlyOwner {
         require(blockNumberForRevealSeed == 0, "not first time");
-        blockNumberForRevealSeed = block.number;
+        blockNumberForRevealSeed = block.number + 1;
     }
 
     function reveal() external onlyOwner {
