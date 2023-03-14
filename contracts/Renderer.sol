@@ -30,9 +30,6 @@ contract Renderer is IRenderer, Ownable {
             "<html>",
             "<head>",
             '<meta name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0" />',
-            "\n<!--\n",
-            embedCutUp(),
-            "\n-->\n",
             "<style>body { padding: 0; margin: 0; }</style>",
             '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>',
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
@@ -44,6 +41,10 @@ contract Renderer is IRenderer, Ownable {
             embedVariable("A2S_OSCILLATOR", getOscillator(musicParam.oscillator)),
             embedVariable("A2S_ADSR", getADSR(musicParam.adsr)),
             embedVariable("A2S_LYRIC", getLyric(musicParam.lyric)),
+            embedVariable("A2S_PARAM1", getRandomParam(1)),
+            embedVariable("A2S_PARAM2", getRandomParam(2)),
+            embedVariable("A2S_PARAM3", getRandomParam(3)),
+            embedCutUp(),
             script,
             "\n</script>\n",
             "</head>",
@@ -55,10 +56,14 @@ contract Renderer is IRenderer, Ownable {
         return string.concat("data:text/html;charset=UTF-8;base64,", Base64.encode(bytes(imageData)));
     }
 
+    function getRandomParam(uint8 seed) private view returns (string memory) {
+        uint8 param = uint8(uint256(keccak256(abi.encode(seed, blockhash(block.number - 1)))) % 10);
+        return Strings.toString(param);
+    }
+
     function embedCutUp() private view returns (string memory) {
         bytes32 seed = blockhash(block.number - 1);
-        string memory cutUp = cutUpGenerator.cutUp(seed);
-        return Base64.encode(bytes(cutUp));
+        return cutUpGenerator.cutUp(seed);
     }
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {

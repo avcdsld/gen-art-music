@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/utils/Base64.sol";
 import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 
 interface ITerraNullius {
@@ -37,32 +38,26 @@ contract CutUpGeneration is ICutUpGeneration {
         uint256 index11 = ((n << 80) >> 240) % maxSupply;
         uint256 index12 = ((n << 64) >> 240) % maxSupply;
 
-        string memory result;
-        string memory message;
-        (, message, ) = terraNullius.claims(index1);
-        result = message;
-        (, message, ) = terraNullius.claims(index2);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index3);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index4);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index5);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index6);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index7);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index8);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index9);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index10);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index11);
-        result = string.concat(result, " ", message);
-        (, message, ) = terraNullius.claims(index12);
-        result = string.concat(result, " ", message);
+        string memory result = embedCutUp("A2S_CU1", index1);
+        result = string.concat(result, embedCutUp("A2S_CU2", index2));
+        result = string.concat(result, embedCutUp("A2S_CU3", index3));
+        result = string.concat(result, embedCutUp("A2S_CU4", index4));
+        result = string.concat(result, embedCutUp("A2S_CU5", index5));
+        result = string.concat(result, embedCutUp("A2S_CU6", index6));
+        result = string.concat(result, embedCutUp("A2S_CU7", index7));
+        result = string.concat(result, embedCutUp("A2S_CU8", index8));
+        result = string.concat(result, embedCutUp("A2S_CU9", index9));
+        result = string.concat(result, embedCutUp("A2S_CU10", index10));
+        result = string.concat(result, embedCutUp("A2S_CU11", index11));
+        result = string.concat(result, embedCutUp("A2S_CU12", index12));
         return result;
+    }
+
+    function embedCutUp(string memory name, uint256 index) private view returns (string memory) {
+        try terraNullius.claims(index) returns (address, string memory message, uint256) {
+            return string.concat("const ", name, ' = "', Base64.encode(bytes(message)), '";\n');
+        } catch {
+            return string.concat("const ", name, ' = "";\n');
+        }
     }
 }

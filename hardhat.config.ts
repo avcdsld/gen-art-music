@@ -20,11 +20,23 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 const privateKey = process.env.PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000"; // this is to avoid hardhat error
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.17",
+  solidity: {
+    version: "0.8.17",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      viaIR: true,
+    },
+  },
   networks: {
     localhost: {
       timeout: 50000,
     },
+    // hardhat: {
+    //   allowUnlimitedContractSize: true,
+    // },
     goerli: {
       url: "https://goerli.infura.io/v3/7495501b681645b0b80f955d4139add9",
       accounts: [privateKey],
