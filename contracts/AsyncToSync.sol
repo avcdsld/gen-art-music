@@ -71,7 +71,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function reveal() external onlyOwner {
-        require(blockNumberForRevealSeed > 0, "must be preRevealed");
+        require(blockNumberForRevealSeed > 0, "not preRevealed");
         require(!revealed, "already revealed");
         revealed = true;
         revealSeed = uint256(blockhash(blockNumberForRevealSeed));
