@@ -21,6 +21,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     mapping(uint8 => uint8) public drawCache;
 
     IRenderer public renderer;
+    string public imageUrl;
     string public baseImageUrl;
     string public baseAnimationUrl;
     string private _description;
@@ -37,6 +38,10 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
 
     function setRenderer(address rendererAddress) external onlyOwner {
         renderer = IRenderer(rendererAddress);
+    }
+
+    function setImageUrl(string memory url) external onlyOwner {
+        imageUrl = url;
     }
 
     function setBaseImageUrl(string memory url) external onlyOwner {
@@ -123,7 +128,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function getMetadata(uint256 tokenId) private view returns (string memory) {
-        if (revealed) {
+        if (revealed && bytes(imageUrl).length == 0) {
             IAsyncToSync.MusicParam memory param = musicParam(tokenId);
             return
                 string.concat(
@@ -159,8 +164,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
                 '","description":"',
                 _description,
                 '","image":"',
-                baseImageUrl,
-                Strings.toString(tokenId),
+                imageUrl,
                 '","external_url":"',
                 _baseExternalUrl,
                 Strings.toString(tokenId),
