@@ -12,9 +12,15 @@ import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 contract Renderer is IRenderer, Ownable {
     ICutUpGeneration public cutUpGenerator;
     string public script;
+    string public externalScript;
 
     constructor(address cutUpGeneratorAddress) {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
+        externalScript = string.concat(
+            '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>',
+            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
+            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>'
+        );
     }
 
     function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {
@@ -25,15 +31,17 @@ contract Renderer is IRenderer, Ownable {
         script = _script;
     }
 
+    function setExternalScript(string memory _externalScript) external onlyOwner {
+        externalScript = _externalScript;
+    }
+
     function dataURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory) {
         string memory imageData = string.concat(
             "<html>",
             "<head>",
             '<meta name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0" />',
             "<style>body { padding: 0; margin: 0; }</style>",
-            '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>',
-            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
-            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>',
+            externalScript,
             "\n<script>\n",
             embedVariable("A2S_TOKEN_ID", Strings.toString(tokenId)),
             embedVariable("A2S_RARITY", getRarity(musicParam.rarity)),
