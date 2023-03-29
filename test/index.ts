@@ -2274,6 +2274,7 @@ const genRandomAddress = () => {
 
 describe("AsyncToSync", function () {
   it("should mint randomly", async function () {
+	// Deploy contracts
     const terraNullius = await (await ethers.getContractFactory("TerraNullius")).deploy();
     await terraNullius.deployed();
     const cutUpGenerator = await (await ethers.getContractFactory("CutUpGeneration")).deploy(terraNullius.address);
@@ -2283,11 +2284,13 @@ describe("AsyncToSync", function () {
     const asyncToSync = await (await ethers.getContractFactory("AsyncToSync")).deploy(renderer.address);
     await asyncToSync.deployed();
 
+	// Prepare TerraNullius for testing
     for (let i = 0; i < 40; i++) {
       const tx = await terraNullius.claim("test" + i);
       await tx.wait();
     }
 
+	// Setup renderer (p5.js code and image url etc.)
 	const scriptSplitRegex = /[\s\S]{1,12000}/g;
 	const scripts = script.match(scriptSplitRegex);
     console.log('script length:', scripts?.length)
@@ -2298,23 +2301,34 @@ describe("AsyncToSync", function () {
 	await (await asyncToSync.setRenderer(renderer.address)).wait();
     await (await asyncToSync.setBaseImageUrl("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#")).wait();
 
+	// Check initial status
     const totalNum = 128;
+	const price = ethers.utils.parseEther("0.2");
     expect(await asyncToSync.tokenRemaining()).to.equal(totalNum);
+    expect(await asyncToSync.PRICE()).to.equal(price);
 
-    const rarities: { [key: string]: number } = {};
+	// Mint
+	const rarities: { [key: string]: number } = {};
     const mintedSeeds: { [key: number]: boolean } = [];
+	await (await asyncToSync.setOnSale(true)).wait();
     for (let i = 5; i <= 4 + totalNum; i++) {
-      const tx = await asyncToSync.mint(genRandomAddress());
+      const tx = await asyncToSync.mint(genRandomAddress(), { value: price });
       await tx.wait();
     }
 
-    console.log(await asyncToSync.tokenURI(5));
+	// Check and withdraw ETH sales
+    expect(await ethers.provider.getBalance(asyncToSync.address)).to.equal(price.mul(totalNum));
+	const recipient = genRandomAddress();
+	await (await asyncToSync.withdrawETH(recipient)).wait();
+	expect(await ethers.provider.getBalance(asyncToSync.address)).to.equal(ethers.BigNumber.from(0));
 
+	// Reveal
     const preRevealTx = await asyncToSync.preReveal();
     await preRevealTx.wait();
     const revealTx = await asyncToSync.reveal();
     await revealTx.wait();
 
+	// Check each music params
     for (let i = 5; i <= 4 + totalNum; i++) {
       const seed = await asyncToSync.seeds(i);
       expect(typeof mintedSeeds[seed]).to.equal("undefined");
@@ -2329,15 +2343,16 @@ describe("AsyncToSync", function () {
       rarities[rarity]++;
     }
 
+	// Check each music params ("1 of 1" NFTs)
     for (let i = 1; i <= 4; i++) {
       const seed = await asyncToSync.seeds(i);
       const { rhythm, oscillator, adsr, lyric, rarity } = await asyncToSync.musicParam(i);
       console.log({ rhythm, oscillator, adsr, lyric, rarity }, seed);
     }
 
+	// For debugging
     console.log(await asyncToSync.musicParam(5));
     console.log(await asyncToSync.tokenURI(5));
-
     console.log({ rarities });
   });
 });

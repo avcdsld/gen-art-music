@@ -5,11 +5,15 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import {IAsyncToSync} from "./interfaces/IAsyncToSync.sol";
 import {IRenderer} from "./interfaces/IRenderer.sol";
 
 contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
+
+    uint256 public constant PRICE = 0.2 ether;
+    bool public onSale;
 
     uint256 public revealSeed;
     uint256 public blockNumberForRevealSeed;
@@ -34,6 +38,10 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         _mint(_msgSender(), 2);
         _mint(_msgSender(), 3);
         _mint(_msgSender(), 4);
+    }
+
+    function setOnSale(bool _onSale) external onlyOwner {
+        onSale = _onSale;
     }
 
     function setRenderer(address rendererAddress) external onlyOwner {
@@ -77,8 +85,10 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         revealSeed = uint256(blockhash(blockNumberForRevealSeed));
     }
 
-    function mint(address to) external {
+    function mint(address to) external payable {
         require(totalSupply <= (4 + maxDrawsCount), "all minted");
+        require(onSale, "not on sale");
+        require(msg.value == PRICE, "invalid value");
         uint256 tokenId = ++totalSupply;
         seeds[tokenId] = drawSeed();
         _safeMint(to, tokenId);
@@ -224,7 +234,11 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         return "";
     }
 
-    function supportsInterface(bytes4 _interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
-        return ERC721.supportsInterface(_interfaceId) || super.supportsInterface(_interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
+        return ERC721.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
+    }
+
+    function withdrawETH(address payable recipient) external onlyOwner {
+        Address.sendValue(recipient, address(this).balance);
     }
 }
