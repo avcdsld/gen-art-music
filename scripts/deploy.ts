@@ -307,12 +307,16 @@ async function main() {
 	console.log("txSetBaseImageUrl: ", txSetBaseImageUrl.hash);
 	await txSetBaseImageUrl.wait();
 
-	// MEMO: Error occurs in Goerli
-	// const gasLimit = Math.floor(Number((await renderer.estimateGas.setScript(script)).toNumber()) * 1.1)
-	const gasLimit = 4000000;
-	const txSetScript = await renderer.setScript(script, { gasLimit });
-	console.log("txSetScript: ", txSetScript.hash);
-	await txSetScript.wait();
+	const scriptSplitRegex = /[\s\S]{1,12000}/g;
+	const scripts = script.match(scriptSplitRegex);
+    console.log('script length:', scripts?.length)
+	for (let i = 0; i < scripts!.length; i++) {
+		const gasLimit = Math.floor(Number((await renderer.estimateGas.setScript(i, scripts![i])).toNumber()) * 1.1)
+		const txSetScript = await renderer.setScript(i, scripts![i], { gasLimit });
+		console.log("txSetScript (" + i +"/" + scripts!.length + "): " + txSetScript.hash);
+		await txSetScript.wait();
+	}
+	await (await renderer.setScriptsLength(scripts!.length)).wait();
 }
 
 main().catch((error) => {

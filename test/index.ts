@@ -319,8 +319,14 @@ describe("AsyncToSync", function () {
       await tx.wait();
     }
 
-    await (await renderer.setScript(script)).wait();
-    await (await asyncToSync.setRenderer(renderer.address)).wait();
+	const scriptSplitRegex = /[\s\S]{1,12000}/g;
+	const scripts = script.match(scriptSplitRegex);
+    console.log('script length:', scripts?.length)
+	for (let i = 0; i < scripts!.length; i++) {
+		await (await renderer.setScript(i, scripts![i])).wait();
+	}
+	await (await renderer.setScriptsLength(scripts!.length)).wait();
+	await (await asyncToSync.setRenderer(renderer.address)).wait();
     await (await asyncToSync.setBaseImageUrl("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/image.png#")).wait();
 
     const totalNum = 128;

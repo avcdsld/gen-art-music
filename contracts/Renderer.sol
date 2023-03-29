@@ -11,7 +11,8 @@ import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 
 contract Renderer is IRenderer, Ownable {
     ICutUpGeneration public cutUpGenerator;
-    string public script;
+    mapping(uint8 => string) public scripts;
+    uint8 public scriptsLength;
     string public externalScript;
 
     constructor(address cutUpGeneratorAddress) {
@@ -27,12 +28,16 @@ contract Renderer is IRenderer, Ownable {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
     }
 
-    function setScript(string memory _script) external onlyOwner {
-        script = _script;
+    function setScriptsLength(uint8 length) external onlyOwner {
+        scriptsLength = length;
     }
 
-    function setExternalScript(string memory _externalScript) external onlyOwner {
-        externalScript = _externalScript;
+    function setScript(uint8 index, string memory script) external onlyOwner {
+        scripts[index] = script;
+    }
+
+    function setExternalScript(string memory script) external onlyOwner {
+        externalScript = script;
     }
 
     function dataURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory) {
@@ -53,7 +58,7 @@ contract Renderer is IRenderer, Ownable {
             embedVariable("A2S_PARAM2", getRandomParam(2)),
             embedVariable("A2S_PARAM3", getRandomParam(3)),
             embedCutUp(),
-            script,
+            embedScripts(),
             "\n</script>\n",
             "</head>",
             "<body>",
@@ -76,6 +81,14 @@ contract Renderer is IRenderer, Ownable {
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {
         return string.concat("const ", name, " = ", value, ";\n");
+    }
+
+    function embedScripts() private view returns (string memory) {
+        string memory res = "";
+        for (uint8 i = 0; i < scriptsLength; i++) {
+            res = string.concat(res, scripts[i]);
+        }
+        return res;
     }
 
     function getRarity(IAsyncToSync.Rarity val) private pure returns (string memory) {
