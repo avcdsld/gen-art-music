@@ -15,17 +15,12 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public constant PRICE = 0.2 ether;
     bool public onSale;
 
-    uint256 public revealSeed;
-    uint256 public blockNumberForRevealSeed;
-    bool public revealed = false;
-
     uint8 public maxDrawsCount = 128;
     uint8 public tokenRemaining = 128;
     mapping(uint256 => uint8) public seeds;
     mapping(uint8 => uint8) public drawCache;
 
     IRenderer public renderer;
-    string public imageUrl;
     string public baseImageUrl;
     string public baseAnimationUrl;
     string private _description;
@@ -48,10 +43,6 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         renderer = IRenderer(rendererAddress);
     }
 
-    function setImageUrl(string memory url) external onlyOwner {
-        imageUrl = url;
-    }
-
     function setBaseImageUrl(string memory url) external onlyOwner {
         baseImageUrl = url;
     }
@@ -70,19 +61,6 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
 
     function setRoyalty(address royaltyReceiver, uint96 royaltyFeeNumerator) external onlyOwner {
         _setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);
-    }
-
-    // Important: `reveal()` must be execulted within 256 blocks after this function is executed.
-    function preReveal() external onlyOwner {
-        require(blockNumberForRevealSeed == 0, "not first time");
-        blockNumberForRevealSeed = block.number + 1;
-    }
-
-    function reveal() external onlyOwner {
-        require(blockNumberForRevealSeed > 0, "not preRevealed");
-        require(!revealed, "already revealed");
-        revealed = true;
-        revealSeed = uint256(blockhash(blockNumberForRevealSeed));
     }
 
     function mint(address to) external payable {
@@ -115,9 +93,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Thick, IAsyncToSync.Lyric.LittleGirl, IAsyncToSync.Oscillator.Lyra, IAsyncToSync.ADSR.Piano);
         }
 
-        require(revealed, "not revealed");
-
-        uint8 number = uint8((seeds[tokenId] + revealSeed) % maxDrawsCount);
+        uint8 number = uint8(seeds[tokenId] % maxDrawsCount);
         if (number < 10) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.UltraRare, IAsyncToSync.Rhythm.Shuffle, IAsyncToSync.Lyric.Shuffle, IAsyncToSync.Oscillator.Shuffle, IAsyncToSync.ADSR.Shuffle);
         } else if (number < 30) {
@@ -138,35 +114,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function getMetadata(uint256 tokenId) private view returns (string memory) {
-        if (revealed && bytes(imageUrl).length == 0) {
-            IAsyncToSync.MusicParam memory param = musicParam(tokenId);
-            return
-                string.concat(
-                    '{"name":"AsyncToSync #',
-                    Strings.toString(tokenId),
-                    '","description":"',
-                    _description,
-                    '","image":"',
-                    baseImageUrl,
-                    Strings.toString(tokenId),
-                    '","animation_url":"',
-                    getImage(tokenId, param),
-                    '","external_url":"',
-                    _baseExternalUrl,
-                    Strings.toString(tokenId),
-                    '","attributes":[{"trait_type":"Rarity","value":"',
-                    getRarity(param.rarity),
-                    '"},{"trait_type":"Rhythm","value":"',
-                    getRhythmName(param.rhythm),
-                    '"},{"trait_type":"Oscillator","value":"',
-                    getOscillatorName(param.oscillator),
-                    '"},{"trait_type":"ADSR","value":"',
-                    getADSRName(param.adsr),
-                    '"},{"trait_type":"Lyric","value":"',
-                    getLyricName(param.lyric),
-                    '"}]}'
-                );
-        }
+        IAsyncToSync.MusicParam memory param = musicParam(tokenId);
         return
             string.concat(
                 '{"name":"AsyncToSync #',
@@ -174,11 +122,24 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
                 '","description":"',
                 _description,
                 '","image":"',
-                imageUrl,
+                baseImageUrl,
+                Strings.toString(tokenId),
+                '","animation_url":"',
+                getImage(tokenId, param),
                 '","external_url":"',
                 _baseExternalUrl,
                 Strings.toString(tokenId),
-                '","attributes":[{"trait_type":"Rarity","value":"Unknown"}]}'
+                '","attributes":[{"trait_type":"Rarity","value":"',
+                getRarity(param.rarity),
+                '"},{"trait_type":"Rhythm","value":"',
+                getRhythmName(param.rhythm),
+                '"},{"trait_type":"Oscillator","value":"',
+                getOscillatorName(param.oscillator),
+                '"},{"trait_type":"ADSR","value":"',
+                getADSRName(param.adsr),
+                '"},{"trait_type":"Lyric","value":"',
+                getLyricName(param.lyric),
+                '"}]}'
             );
     }
 
