@@ -2303,7 +2303,7 @@ describe("AsyncToSync", function () {
 
     // Check initial status
     const totalNum = 128;
-    const price = ethers.utils.parseEther("0.2");
+    const price = ethers.utils.parseEther("0.1");
     expect(await asyncToSync.tokenRemaining()).to.equal(totalNum);
     expect(await asyncToSync.PRICE()).to.equal(price);
 

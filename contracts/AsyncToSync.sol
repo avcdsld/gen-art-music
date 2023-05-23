@@ -12,7 +12,7 @@ import {IRenderer} from "./interfaces/IRenderer.sol";
 contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     uint256 public totalSupply;
 
-    uint256 public constant PRICE = 0.2 ether;
+    uint256 public constant PRICE = 0.1 ether;
     bool public onSale;
 
     uint8 public maxDrawsCount = 128;
