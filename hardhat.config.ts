@@ -37,6 +37,12 @@ const config: HardhatUserConfig = {
     // hardhat: {
     //   allowUnlimitedContractSize: true,
     // },
+    mumbai: {
+      url: "https://polygon-mumbai.infura.io/v3/9f5ace8940244ed9a769e493d783fda8",
+      accounts: [privateKey],
+      gas: 2100000,
+      gasPrice: 60000000000,
+    },
     goerli: {
       url: "https://goerli.infura.io/v3/7495501b681645b0b80f955d4139add9",
       accounts: [privateKey],

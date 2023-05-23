@@ -2364,7 +2364,15 @@ function polyfill() {
 `;
 
 async function main() {
-	const renderer = await (await ethers.getContractFactory("Renderer")).deploy();
+	const terraNullius = await (await ethers.getContractFactory("TerraNullius")).deploy();
+	await terraNullius.deployed();
+	console.log("TerraNullius deployed to:", terraNullius.address);
+
+	const cutUpGenerator = await (await ethers.getContractFactory("CutUpGeneration")).deploy(terraNullius.address);
+	await cutUpGenerator.deployed();
+	console.log("CutUpGeneration deployed to:", cutUpGenerator.address);
+
+	const renderer = await (await ethers.getContractFactory("Renderer")).deploy(cutUpGenerator.address);
 	await renderer.deployed();
 	console.log("Renderer deployed to:", renderer.address);
 
