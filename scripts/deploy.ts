@@ -1,13 +1,12 @@
 import { ethers } from "hardhat";
 
 const script = `
-let oscObj = null;
 let sound;
 let fft;
-let band = 2048; //FFTサイズ 　
+let band = 2048; //FFTサイズ
 let position2 = []; //位置のベクトル
-let velocity = []; //速度のベクトル　 
-let friction = 0.75; //摩擦  
+let velocity = []; //速度のベクトル
+let friction = 0.75; //摩擦
 let mass = 10.0; //質量
 var seed = Math.random() * 3;
 var t;
@@ -29,45 +28,47 @@ let afterImage;
 var hed;
 var aspectRatio = 16 / 9;
 var ew, eh;
-let colors1 = ["#EF6100", "#EF6100", "#FF9D00", "#FFC100", "#0070F6", "#D7C7DE", "#D0B3F4", ];
-let colors2 = ["#A4ECFF", "#8461C9", "#D0B3F4", "#FF80D2", "#FFEB36", "#FF9D00", "#EF6100", "#598200", "#DCEF25", "#FF0097", "#0070F6", "#00AF57", "#FF0000", ];
-let colors3 = ["#DCEF25", "#FF0097", "#0070F6"];
-let colors4 = ["#0070F6", "#FFFFFF", "#0f07af", "#FF9D00"];
-let colors5 = ["#A4ECFF", "#8461C9", "#D0B3F4", "#FF0097", "#0070F6", "#00AF57", "#FF0000", ];
-let colors6 = ["#A4ECFF", "#8461C9", "#D0B3F4", "#FF80D2", "#FFEB36"];
+let colors1 = ["#EF6100", "#EF6100", "#FF9D00", "#FFC100", "#0070F6", "#D7C7DE", "#D0B3F4","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC" ];
+//let colors2 = ["#A4ECFF", "#8461C9", "#EF6100", "#598200", "#DCEF25", "#FF0097", "#FF0000", ];
+let colors2 = ["#A4ECFF", "#8461C9", "#EF6100", "#598200", "#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC" ];
+//let colors3 = ["#DCEF25", "#FF0097", "#0070F6"];
+let colors3 = [ "#FF0097","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC"];
+let colors4 = ["#0070F6", "#FFFFFF", "#0f07af", "#FF9D00","#CBD5DC", "#CBD5DC"];
+let colors5 = ["#A4ECFF", "#0070F6", "#00AF57", "#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC"];
+let colors6 = ["#A4ECFF", "#8461C9", "#D0B3F4", "#FF80D2", "#FFEB36","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC"];
 let colors7 = ["#FFF100", "#C265A4", "#CBD5DC","#0f07af", "#FFFFFF", "#000000"];
 let colors8 = ["#FFF100", "#CBD5DC", "#CBD5DC", "#EA5514"];
 let colors9 = ["#008CD6", "#B9A172", "#124098", "#8DC556"]; //Bright Blue base
 let colors10 = ["#005BAC", "#7D7D7D", "#8D1038","#FFFFFF", "#0f7baf"];
 let colors11 = ["#EEE0C0", "#DEC69F", "#920783", "#93B4C5"]; //Beige
 let colors12 = ["#C9CACA", "#EDDFD6", "#E73273","#40cecb"]; //Red 
-let colors13 = ["#EEE0C0", "#920783", "#C9CACA", "#C9CACA", ]; //Beige silver purple-red 
+let colors13 = ["#EEE0C0", "#920783", "#C9CACA", "#C9CACA" ]; //Beige silver purple-red 
 let colors14 = ["#EEE0C0", "#0f07af3", "#C9CACA", "#0070F6"]; //Beige silver purple-red 
-let colors15 = ["#EF6100", "#EF6100", "#FF9D00", "#FFC100", "#0070F6", "#D7C7DE", "#D0B3F4", ];
-let colors16 = ["#0070F6", "#FFFFFF","#FFFFFF", "#0f7baf"];
+let colors15 = ["#EF6100", "#EF6100", "#FF9D00", "#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC" ];
+let colors16 = ["#0070F6", "#FFFFFF","#f2f9e7", "#0f7baf"];
 let colors17 = ["#A4ECFF", "#8461C9", "#D0B3F4"];
-let colors18 = ["#FF3399", "#006F86","#FFFFFF", "#0f7baf","#40cecb"];
-let colors19 = ["#DCEF25", "#FF0097", "#0070F6"];
-let colors20 = ["#0070F6", "#FFFFFF", "#FF9D00","#FFFFFF", "#0f7baf"];
+let colors18 = ["#FF3399", "#006F86","#f2f9e7", "#0f7baf","#40cecb","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC",];
+let colors19 = ["#DCEF25", "#FF0097", "#0070F6","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC"];
+let colors20 = ["#0070F6", "#FFFFFF", "#f2f9e7", "#0f7baf","#CBD5DC", "#CBD5DC","#CBD5DC", "#CBD5DC"];
 
 let cmColors1 =  ["#00a63d","#ced5dc"];
-let cmColors2 =  ["#40cecb","#ced5dc"];
+let cmColors2 =  ["#40cecb","#ced5dc","#ced5dc","#ced5dc"];
 let cmColors3 =  ["#367589","#ced5dc"];
-let cmColors4 =  ["#6aa9de","#ced5dc"];
-let cmColors5 =  ["#849bab","#ced5dc"];
-let cmColors6 =  ["#ceafb2","#ced5dc"];
-let cmColors7 =  ["#f2f9e7","#ced5dc","#736f6c"];
-let cmColors8 =  ["#8ba26C","#ced5dc"];
+let cmColors4 =  ["#6aa9de","#ced5dc","#6aa9de","#ced5dc","#0070F6"];
+let cmColors5 =  ["#849bab","#ced5dc","#0f7baf"];
+let cmColors6 =  ["#ceafb2","#ced5dc","#ceafb2","#ced5dc","#FF80D2"];
+let cmColors7 =  ["#f2f9e7","#ced5dc","#736f6c","#f2f9e7","#ced5dc","#736f6c","#FF9D00"];
+let cmColors8 =  ["#8ba26C","#ced5dc","#8ba26C","#ced5dc","#40cecb"];
 let cmColors9 =  ["#d6441b","#ced5dc"];
-let cmColors10=  ["#ff3403","#ced5dc"];
-let cmColors11=  ["#ff3403","#ced5dc","#ec008c"];
+let cmColors10=  ["#ff3403","#ced5dc","#f2f9e7","#f2f9e7"];
+let cmColors11=  ["#ff3403","#ced5dc","#ec008c","#CBD5DC", "#CBD5DC"];
 let cmColors12=  ["#ced5dc","#9a7ccf","#d0747c"];
 let cmColors13=  ["#503c47","#ced5dc","#dbcabf"];
 let cmColors14=  ["#28171a","#ced5dc","#a59089"];
 let cmColors15=  ["#f9dd00","#ced5dc","#f5cc5e"];
-let cmColors16=  ["#e6d29b","#ced5dc","#ddd582"];
+let cmColors16=  ["#e6d29b","#ced5dc","#ddd582","#FF9D00"];
 let cmColors17=  ["#27a1a4","#ced5dc","#00a63d"];
-let cmColors18=  ["#7cf135","#ced5dc","#4166f5"];
+let cmColors18=  ["#27a1a4","#ced5dc","#4166f5","#CBD5DC", "#CBD5DC"];
 let cmColors19=  ["#536fb0","#ced5dc","#849bab"];
 let cmColors20=  ["#ff3403","#ced5dc","#d78152"];
 
@@ -81,6 +82,11 @@ let colors10090 = ["#7D7D7D","#000000","#000000","#000000"];
 let colorsYve = ["#00008b"];
 let bkcolorsYve = ["#ced5dc"]
 
+let whiteLine= false;
+let whiteLineP1 = 20;
+let whiteLineP2 = 250;
+let whiteLineP3 = 250;
+let whiteLineRandom =false;
 
 let type;
 let rhythm;
@@ -122,7 +128,7 @@ let num_particles = 10;
 let helixRadius = 200;
 let helixHeight = 15;
 let helixTurns = 1;
-let helixStep = 0.4;
+let helixStep = 0.2;
 let torusRadius = 100;
 let torusTubeRadius = 20;
 let knotRadius = 60;
@@ -234,8 +240,8 @@ function getQueryParam(name) {
 }
 
 function preload() {
-	sound = loadSound("https://raw.githubusercontent.com/avcdsld/gen-art-music/main/metadata/DDDC.mp3");
-	// sound = loadSound('./master-04.mp3');
+	sound = loadSound('https://ara.mypinata.cloud/ipfs/QmR9JaP98AaTU5QiJx7chB9bM6b3J5WmosQve7tVj28wTf');
+	// sound = loadSound('./AAAA.mp3');
 	//	sound = loadSound('./master-01.mp3'); 
 }
 
@@ -275,7 +281,7 @@ function setup() {
 	hyperFlat = false;
 	rotateXZ = true;
   //type="COMMON"
- // type="RARE"
+  type="RARE"
 //	type="SUPERRARE"
 //	type="ULTRARARE"
 //	type="ONE_OF_ONE"
@@ -293,6 +299,8 @@ function setup() {
 	} else {
 		rare = false;
 	}
+	
+	
 	if (type == "SUPERRARE") {
 		superRare = true;
 	//	hyperFlat = true;
@@ -362,6 +370,24 @@ function setup() {
 			colors = colors10;
 		} else if (colrand == 11) {
 			colors = colors11;
+		} else if (colrand == 12) {
+			colors = colors12;
+		} else if (colrand == 13) {
+			colors = colors13;
+		} else if (colrand == 14) {
+			colors = colors14;
+		} else if (colrand == 15) {
+			colors = colors15;
+		} else if (colrand == 16) {
+			colors = colors16;
+		} else if (colrand == 17) {
+			colors = colors17;
+		} else if (colrand == 18) {
+			colors = colors18;
+		} else if (colrand == 19) {
+			colors = colors19;
+		} else if (colrand == 20) {
+			colors = colors20;
 		} else {
 			colors = colors4;
 		}
@@ -488,7 +514,25 @@ function setup() {
 		}
 		polygons.push(poly);
 	}
-
+	
+  if(PARAM2>5){
+		whiteLine=false;
+	}else if(PARAM2>3){
+		whiteLine=true;
+		whiteLineP1 = 20;
+		whiteLineP2 = 250;
+		whiteLineP3 = 250;
+		
+	}else if (PARAM2>2){
+		whiteLine=true;
+		whiteLineP1 = random(20);
+		whiteLineP2 = random(250);
+		whiteLineP3 = random(250);
+		
+	}	else{
+		whiteLine=true;
+		whiteLineRandom =true;
+	}
 
 	/////////////////attributeObjects
 	if(oneOfOne){
@@ -501,7 +545,7 @@ function setup() {
 		} else {
 			voiceRect = false;
 		}
-		voiceRect = true;
+		//voiceRect = true;
 		uneRand = random(10)
 		if (uneRand > 9) {
 			uneune = true;
@@ -575,8 +619,7 @@ function setup() {
 		conRect = false;
 		baseLines = false;
 		polygonLine = false;
-	  particle = false;
-	
+	  particle = false;	
 	
 	}
 		
@@ -587,14 +630,16 @@ function setup() {
 	/////////////////Osc Objects
 	//OSCILLATORに合わせてoscObjを決定する　OSCILLATOR=["GLITCH","LFO","FREAK","LYRA"]
 	if (osc == "GLITCH") {
-		oscObj = 0;
-	} else if (osc == "LFO") {
 		oscObj = 1;
-	} else if (osc == "FREAK") {
+	} else if (osc == "LFO") {
 		oscObj = 2;
-	} else if (osc == "LYRA") {
+	} else if (osc == "FREAK") {
 		oscObj = 3;
+	} else if (osc == "LYRA") {
+		oscObj = 4;
 	}
+	oscObj = 2;
+	
 	/////////////////Circle Rect
 	circleRect = true;
 	circleRectH = 1;
@@ -620,6 +665,11 @@ function setup() {
 	createCanvas(windowWidth, windowHeight, WEBGL);
 	//	theShader = createShader(vs, fs);
 	textureMode(NORMAL);
+	
+	if(minCanvasSize<500){
+		friction = 0.25;
+		frameRate(30);
+	}
 	//  colorMode(HSB);
 	/**
 	whiteLRand=random(10);
@@ -694,18 +744,24 @@ function setup() {
 	//事前に背景グリッドを描く
 	for (let t = 0; t < height / 4; t++) {
 		push();
-		//stroke(255,255,255-t,255);
-		stroke(255 - t, 255 - t, 155, 2);
-		// stroke(255-t/100,255-t/100,255,2);
+	//	stroke(255,255,255-t,255);
+	//	stroke(255 - t, 255 - t, 155, 1);
+	//	stroke(255-t/100,255-t/100,255,2);
 		randl = random(1000);
 		if (hyperStripe && randl > 0) {
+			push();
+			strokeWeight(0.1);
 			line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
+			pop();
 		}
 		if (randl > 995) {
 			if (baseLines) {
-				stroke(255 - t, 255 - t, 155, 2);
-				//stroke(random(colors))
+			//	stroke(255 - t, 255 - t, 155, 1);
+		//		stroke(random(colors))
+				push();
+			  strokeWeight(0.1);
 				line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
+				pop();
 			}
 		}
 		if (randl > 950) {
@@ -714,14 +770,15 @@ function setup() {
 		}
 		pop();
 	}
-	
-	 _text = createGraphics(window.innerWidth - 4, window.innerHeight - 4);
+	/**
+	_text = createGraphics(window.innerWidth - 4, window.innerHeight - 4);
 	_text.textFont('Source Code Pro');
   _text.textAlign(CENTER);
   _text.textSize(133);
   _text.fill(3, 7, 11);
   _text.noStroke();
   _text.text(textParam1, width * 0.5, height * 0.5);
+	*/
 	
 	
   dotPattern = createGraphics(40, 40);
@@ -737,8 +794,8 @@ function setup() {
   //console.log(queryParams); 
 
   // クエリパラメータを取得
-  const cap = getQueryParam("cap");
-  console.log("cap:", cap);
+ // const cap = getQueryParam("cap");
+ // console.log("cap:", cap);
 
 }
 
@@ -920,7 +977,7 @@ function draw() {
 
   if (superRare) {
 		rorand = random(100)
-		if(rorand>80){
+		if(rorand>35){
 	  	rotateX(frameCount / 5 + 45 + (int(random(4)) * 360) / 500);
 			//rotateZ(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 		}
@@ -953,23 +1010,28 @@ function draw() {
 		//stroke(255,255,255-t,255);
 		
 			//stroke(255 - t, 255 - t, 155, 2);
+		    //console.log("randbkline:"+randbkline)
 				if(randbkline>8){ 
-					stroke(255 - t, 100, 100, 2);
+					//stroke(255 - t, 100, 100, 1);
+					stroke(0, 100, 255-t, 1);
 				}else if(randbkline>8){
-					stroke(t, 255 - t, 155, 2);
+					stroke(t, 255 - t, 155, 1);
 				}else if(randbkline>6){
-					stroke(t, 255 - t, 255-t, 2);
+					stroke(t, 255 - t, 255-t, 1);
 				}else if(randbkline>4){
-					stroke(255-t, t, t,2);
+					stroke(255-t, t, t,1);
 				}else if(randbkline>2){
-					stroke(t, t, t);
+					stroke(t, t, t,1);
 				}else{
-				  stroke(255, 255, 255);
+				  stroke(235, 235, 235,1);
 				}
 		// stroke(255-t/100,255-t/100,255,2);
 		randl = random(1000);
 		if (hyperStripe && randl > 0) {
+			push();
+			strokeWeight(0.5);
 			line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
+			pop();
 		}
 		if (randl > 995) {
 			if (baseLines) {
@@ -994,7 +1056,7 @@ function draw() {
 			// stroke(random(colors))
 			//  line(-width,-height/2+ t*4,width, -height/2 + t*4);
 		}
-		pop();
+		//pop();
 	}
 	if (count > 2500) {
 		//s 	myCamera.camera(0, 0, 0 + (height / 2.0) / tan(180 * 26 / 180.0), 0, 0, 0, 0, 1, 0);
@@ -1035,46 +1097,54 @@ function draw() {
 		}
 	}
 	//////
-	for (let i = 0; i < 2; i++) {
-		push();
-		rotate(i * TWO_PI / 4);
-		px = cos(frameCount * 0.005 + i * 0.1) * 200;
-		py = sin(frameCount * 0.005 + i * 0.1) * 200;
-		beginShape();
-		for (let j = 0; j < 5; j++) {
-			ang = j * TWO_PI / 20;
-			d1 = noise(cos(ang) * 2 + px * 0.002 + t1 * 0.002, sin(ang) * 2 + py * 0.002 + t1 * 0.002);
-			d2 = noise(cos(ang) * 1.5 + px * 0.003 + t2 * 0.003, sin(ang) * 1.5 + py * 0.003 + t2 * 0.003);
-			d = map(d1, 0, 1, -50, 50) + map(d2, 0, 1, -50, 50);
-			x = cos(ang) * (500 + d * level * 250);
-			y = sin(ang) * (500 + d * level * 250);
-			//	x = cos(ang) * (200 + d*15);
-			//  y = sin(ang/4) * (200 + d*15);
-			//	fill(200/i%2,50,200,20)
-			stroke(50, 200 / i % 2, 200, 100)
-			//fill(255,255,255,140*level*5)
-			noFill();
-			stroke(random(155,255))
-			//stroke(0,0,0,0)
-			if(count>2000){
-				cnt=1000
-			}else{
-			  cnt=count;
+	if(whiteLine){
+		for (let i = 0; i < 2; i++) {
+			push();
+			rotate(i * TWO_PI / 4);
+			px = cos(frameCount * 0.005 + i * 0.1) * 200;
+			py = sin(frameCount * 0.005 + i * 0.1) * 200;
+			beginShape();
+			if(whiteLineRandom){
+				whiteLineP1=random(20);
+				whiteLineP2=random(250);
+				whiteLineP3=random(250);
 			}
-			for(let i=0; i<cnt/10; i++){
-				randCu =random(1000)
-				if(randCu>950){
-			    curveVertex(x+i, y+i);
+			for (let j = 0; j < 5; j++) {
+
+				ang = j * TWO_PI / whiteLineP1;
+				d1 = noise(cos(ang) * 2 + px * 0.002 + t1 * 0.002, sin(ang) * 2 + py * 0.002 + t1 * 0.002);
+				d2 = noise(cos(ang) * 1.5 + px * 0.003 + t2 * 0.003, sin(ang) * 1.5 + py * 0.003 + t2 * 0.003);
+				d = map(d1, 0, 1, -50, 50) + map(d2, 0, 1, -50, 50);
+				x = cos(ang) * (500 + d * level * whiteLineP2);
+				y = sin(ang) * (500 + d * level * whiteLineP3);
+				//	x = cos(ang) * (200 + d*15);
+				//  y = sin(ang/4) * (200 + d*15);
+				//	fill(200/i%2,50,200,20)
+				stroke(50, 200 / i % 2, 200, 100)
+				//fill(255,255,255,140*level*5)
+				noFill();
+				stroke(random(155,255))
+				//stroke(0,0,0,0)
+				if(count>2000){
+					cnt=1000
+				}else{
+					cnt=count;
 				}
-			//curveVertex(x, y);
-			//curveVertex(x, y);
+				for(let i=0; i<cnt/50; i++){
+					randCu =random(1000)
+					if(randCu>950){
+						curveVertex(x+i, y+i);
+					}
+				//curveVertex(x, y);
+				//curveVertex(x, y);
+				}
 			}
+			endShape(CLOSE);
+			pop();
 		}
-		endShape(CLOSE);
-		pop();
 	}
 
- 
+ //uneune=true;
 	/////////////////Uneune setting
 	if (uneune) {
 		unerand = random(100);
@@ -1089,9 +1159,11 @@ function draw() {
 				let x = r * cos(t) + width / 2;
 				let y = r * sin(t) + height;
 				y = map(noise(x * 0.01, frameCount * 0.01), 0, 1, 0, height);
-				vertex(x, y + 200);
+				if (unerand > 96) {
+				vertex(x, y + 200 * mRate);
 				vertex(x, y);
-				vertex(x - 200, y - 200);
+				vertex(x - 200 * mRate, y - 200 * mRate);
+				}
 			}
 			endShape();
 			pop();
@@ -1173,20 +1245,20 @@ function draw() {
 		}
 	}
 
-	if (rand > 50 && superRare || count % 50 == 0 && superRare) {
+	if (rand > 750 && superRare || count % 350 == 0 && superRare) {
 		ra = random(10)
 		// After Image 残像の設定
 		if (afterImage == 1) {
 			if (ra > 5) {
-				fill(240, 240, 220, 20)
+				fill(240, 240, 220, 10)
 			} else {
-				fill(240, 240, 120, 20)
+				fill(240, 240, 120, 10)
 			}
 		} else if (afterImage == 2) {
 			if (ra > 5) {
-				fill(240, 240, 240, 40)
+				fill(240, 240, 240, 10)
 			} else {
-				fill(240, 240, 240, 40)
+				fill(240, 240, 240, 10)
 			}
 		}
 		if (ra > 5) {
@@ -1265,11 +1337,14 @@ function draw() {
 				randip = 1000;
 				randip = random(1000);
 				if (count > 2500 && count < 4500 && randip > 900) {
-					translate(random(400 * mRate), random(-400 * mRate));
+					translate(random(800 * mRate), random(-400 * mRate));
 					rotate(random(-2, 2));
 					if (oscObj == 1) {
 						hed.show();
 					} else if (oscObj == 2) {
+						hed.show();
+						
+						/**
 						//	translate(random(400 * mRate), random(-400 * mRate));
 						//rotate(random(-2,2));
 						push()
@@ -1284,6 +1359,7 @@ function draw() {
 							rect(x1 + (-i, i), y1 + (-i, i), w1 + i + 4 + count / 100);
 						}
 						pop();
+						*/
 					} else if (oscObj == 3) {
 						push()
 						noFill();
@@ -1294,7 +1370,7 @@ function draw() {
 						translate(random(count / 10), random(count / 10));
 						for (let i = 0; i < 2; i++) {
 							//	 rect(x1+(-i,i*2),y1+(-i,i*2),w1+i+(-1,4));
-							circle(x1 + (-i, i), y1 + (-i, i), w1 + i + 4 + count / 5);
+							circle(x1 + (-i, i), y1 + (-i, i), w1 + i + 4 + count / 5 * mRate);
 						}
 						pop();
 						/**
@@ -1354,8 +1430,8 @@ function draw() {
 			/////////////////// sound spectrum trigger setting
 			//rand=random(1000);
 			if (voiceRect) {
-				//translate(200,200)
-				rotate(random(-2, 2));
+			//	translate(random(-1200,1200),random(-1200,1200))
+				rotate(random(-2, random(12)));
 				let x1 = map(Math.log10(i), 0, Math.log10(spectrum.length), width / 2, width);
 				let x2 = map(Math.log10(i), 0, Math.log10(spectrum.length), width / 2, 0);
 				let h1 = map(Math.log10(i), 0, Math.log10(spectrum.length), 0, 128);
@@ -1366,8 +1442,8 @@ function draw() {
 				//	push();
 				//translate(-width / 2, -height / 2);
 			//	texture(dotPattern2)
-				rect(x1, height / 2, diameter + level * 5);
-				rect(x2, height / 2, diameter + level * 5);
+				rect(x1, height / 2, diameter + level * 5 * mRate);
+				rect(x2, height / 2, diameter + level * 5 * mRate);
 				pop();
 			}
 			pop();
@@ -1416,7 +1492,7 @@ function draw() {
 			//rotate(10)
 			stroke(random(colors))
 			if (conRect) {
-				rect(randW, randH, width - count5)
+			//	rect(randW, randH, width - count5)
 			}
 			count5 += 10;
 			if (count5 > 5000) {
@@ -1479,7 +1555,7 @@ function draw() {
 				//rect(0, 0, count+count/2)
 				//	fill(240,240,220)
 				if (count > 3 && bigCircle) {
-					circle(0, 0, width - count + count / 2);
+					circle(0, 0, width - count + count / 2 * mRate);
 				}
 				pop();
 				rand = random(1000);
@@ -1488,7 +1564,7 @@ function draw() {
 					fill(colorAlpha(random(colors), arpha))
 					//random(colors);
 					//stroke(0,0,0,0)
-					rect(spectrum[20] * 2, spectrum[20] * 2, spectrum[20] * 2);
+					rect(spectrum[20] * 2 * mRate, spectrum[20] * 2 *mRate, spectrum[20] * 2 *mRate);
 					pop();
 				}
 				if (circleRect && spectrum[20] * 2 > 130) {
@@ -1497,7 +1573,7 @@ function draw() {
 					push();
 					//	ip.show();
 					//translate(random(400 * mRate), random(-400 * mRate));
-					rect(spectrum[20] * 2, spectrum[20] * 2, spectrum[20] * circleRectH, 10);
+					rect(spectrum[20] * 2 *mRate, spectrum[20] * 2 * mRate, spectrum[20] * circleRectH *mRate, 10 *mRate);
 					pop();
 				}
 			}
@@ -1509,11 +1585,11 @@ function draw() {
 				push();
 				stroke(220, 0, 0, 250);
 				fill(0, 0, 0, 0);
-				rect(0, 0, count + count / 2)
-				circle(-100, 0, width - count + count / 2);
+				rect(0, 0, count + count / 2 *mRate)
+				circle(-100, 0, width - count + count / 2 * mRate);
 				stroke(255)
 				rect(0, 0, width - count)
-				line(width, width - count * 3, 0, count * 3);
+				line(width, width - count * 3, 0, count * 3 * mRate);
 			}
 			/////////////////////////////////addForce100-120	
 			if (addForce <= 120 && addForce >= 100) {
@@ -1625,7 +1701,11 @@ function draw() {
 								//time
 								if (count > 820 && count < 2000) {
 									if (subObj == 0) {
-										rect((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 5) * mRate, (parseInt(addForce / 2) * 2) * mRate);
+										if(mainObj == 1){
+											rect((z_plus + i * 10) * mRate, (random(105) + i * 1) * mRate, (i * 1) * mRate, (parseInt(addForce / 2) * 2) * mRate);
+										}else{
+										  rect((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 5) * mRate, (parseInt(addForce / 2) * 2) * mRate);
+										}
 									} else if (subObj == 1) {
 										circle((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 5) * mRate);
 									} else {
@@ -1639,6 +1719,8 @@ function draw() {
 								if (rand > 20) {
 									//mainObj=3;
 									//mainObj=int(random(2,4))
+									
+								//	mainObj=1;
 									///////////////////////////////※※※※※※※※※※※MAIN OBJECT SETTING※※※※※※※※※※※※
 									if (mainObj == 0) {
 										push();
@@ -1661,9 +1743,10 @@ function draw() {
 										push();
 										noFill();
 										rotateX(frameCount * 0.01);
-										rotateY(frameCount * 0.21);
+										rotateY(frameCount * 0.01);
+										rotateZ(frameCount * 0.201);
 										let dt = 0.01;
-										for (let i = 0; i < 100; i++) {
+										for (let i = 0; i < 10; i++) {
 											let dx = aaa * (yy - xx);
 											let dy = xx * (bbb - zz) - yy;
 											let dz = xx * yy - ccc * zz;
@@ -1676,22 +1759,28 @@ function draw() {
 											if(textureOn){
 											//  texture(dotPattern);
 											}
-											ellipse(xx * r, yy * r, 280, 280);
+											ellipse(xx * r, yy * r, 280 * mRate, 280 * mRate);
 										}
 										pop();
 
 										push();
 										beginShape(TRIANGLE_STRIP);
 										//	helixRadius=random(helixRadius);
-										for (let i = 0; i <= helixTurns * TWO_PI; i += helixStep) {
-											let x = helixRadius * cos(i);
-											let y = helixRadius * sin(i);
-											let z = helixHeight * i / helixTurns;
-											//stroke(0,0,0,0)
-											stroke(colorAlpha(random(colors), arpha))
-											//noStroke();
-											vertex(x, y, z);
-											vertex(x, y, z - helixHeight);
+										randob=random(100)
+										if(randob>90){
+											for (let i = 0; i <= helixTurns * TWO_PI; i += helixStep) {
+												let x = helixRadius * cos(i);
+												let y = helixRadius * sin(i);
+												let z = helixHeight * i / helixTurns;
+												//stroke(0,0,0,0)
+												stroke(colorAlpha(random(colors), arpha))
+												//noStroke();
+												
+							
+												vertex(x, y, z);
+								
+											//	vertex(x, y, z - helixHeight);
+											}
 										}
 										endShape();
 										angle += 0.02;
@@ -1702,7 +1791,7 @@ function draw() {
 										rotateY(angle * 1.3);
 										rotateZ(angle * 0.7);
 										noStroke();
-										fractal(400, 10, 0, 20);
+										fractal(random(200,600), 0, 0, 10);
 										angle += 0.02;
 										pop();
 										/**
@@ -1754,7 +1843,7 @@ function draw() {
 											//texture(dotPattern);
 											randC=random(1000);
 											if(randC>980){
-											  cylinder(100 + addForce, 2, 10, 2);
+											  cylinder(100 + addForce * mRate, 2, 10, 2);
 											}
 											pop();
 										}
@@ -1776,7 +1865,7 @@ function draw() {
 										  texture(dotPattern);
 										}
 										if (dist(0, 0, fuzzX, fuzzY) < height * 2) {
-											ellipsoid(2, 180, 40);
+											ellipsoid(2, 180 * mRate, 40 * mRate);
 											
 											/**
 											translate(random(1000),random(1000),random(1000))
@@ -2035,7 +2124,8 @@ function Polyhedoron(ox, oy, faceSide, xScl) {
 	var points0 = [];
 	var points1 = [];
 	var triShapes = [];
-	var numFaces = 5;
+	//var numFaces = int(random(2,10));
+	var numFaces =5;
 	var aStep = TWO_PI / numFaces;
 	for (var i = 0; i < numFaces; i++) {
 		points0.push({
@@ -2056,7 +2146,11 @@ function Polyhedoron(ox, oy, faceSide, xScl) {
 	}
 	this.show = function() {
 		push();
-		translate(ox, oy);
+		translate(ox*1.2, oy*1.2);
+		translate(0,random(400,1200));
+		rotateX(0.51)
+		rotateY(0.1)
+		rotateZ(0.1)
 		scale(xScl);
 		triShapes.forEach(function(ts) {
 			ts.show();
@@ -2075,7 +2169,13 @@ function TriShape(p0x, p0y, p1x, p1y, p2x, p2y) {
 		//	noFill();
 		noStroke();
 		stroke(random(colors));
-		triangle(p0x, p0y, p1x, p1y, p2x, p2y);
+		randt = random(100);
+		if(randt>50){
+		  triangle(p0x, p0y, p1x, p1y, p2x, p2y);
+		}
+		if(randt>75 && oscObj==2){
+		  triangle(p0x+100, p0y+100, p1x+100, p1y+100, p2x+100, p2y+100);
+		}
 		//  colorMode(RGB);
 	}
 }
