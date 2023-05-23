@@ -2407,23 +2407,30 @@ describe("AsyncToSync", function () {
     expect(await asyncToSync.tokenRemaining()).to.equal(totalNum);
     expect(await asyncToSync.PRICE()).to.equal(price);
 
+    // Mint by owner
+    const mintByOwnerNum = 5;
+    for (let i = 1; i <= mintByOwnerNum; i++) {
+      const tx = await asyncToSync.mintByOwner(genRandomAddress());
+      await tx.wait();
+    }
+
     // Mint
-    const rarities: { [key: string]: number } = {};
-    const mintedSeeds: { [key: number]: boolean } = [];
     await (await asyncToSync.setOnSale(true)).wait();
-    for (let i = 5; i <= 4 + totalNum; i++) {
+    for (let i = 1 + mintByOwnerNum; i <= totalNum; i++) {
       const tx = await asyncToSync.mint(genRandomAddress(), { value: price });
       await tx.wait();
     }
 
     // Check and withdraw ETH sales
-    expect(await ethers.provider.getBalance(asyncToSync.address)).to.equal(price.mul(totalNum));
+    expect(await ethers.provider.getBalance(asyncToSync.address)).to.equal(price.mul(totalNum - mintByOwnerNum));
     const recipient = genRandomAddress();
     await (await asyncToSync.withdrawETH(recipient)).wait();
     expect(await ethers.provider.getBalance(asyncToSync.address)).to.equal(ethers.BigNumber.from(0));
 
     // Check each music params
-    for (let i = 5; i <= 4 + totalNum; i++) {
+    const rarities: { [key: string]: number } = {};
+    const mintedSeeds: { [key: number]: boolean } = [];
+    for (let i = 1; i <= totalNum; i++) {
       const seed = await asyncToSync.seeds(i);
       expect(typeof mintedSeeds[seed]).to.equal("undefined");
       mintedSeeds[seed] = true;
@@ -2435,13 +2442,6 @@ describe("AsyncToSync", function () {
         rarities[rarity] = 0;
       }
       rarities[rarity]++;
-    }
-
-    // Check each music params ("1 of 1" NFTs)
-    for (let i = 1; i <= 4; i++) {
-      const seed = await asyncToSync.seeds(i);
-      const { rhythm, oscillator, adsr, lyric, rarity } = await asyncToSync.musicParam(i);
-      console.log({ rhythm, oscillator, adsr, lyric, rarity }, seed);
     }
 
     // For debugging

@@ -28,11 +28,6 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
 
     constructor(address rendererAddress) ERC721("AsyncToSync", "A2S") {
         renderer = IRenderer(rendererAddress);
-        totalSupply = 4;
-        _mint(_msgSender(), 1);
-        _mint(_msgSender(), 2);
-        _mint(_msgSender(), 3);
-        _mint(_msgSender(), 4);
     }
 
     function setOnSale(bool _onSale) external onlyOwner {
@@ -63,8 +58,15 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         _setDefaultRoyalty(royaltyReceiver, royaltyFeeNumerator);
     }
 
+    function mintByOwner(address to) external onlyOwner {
+        require(totalSupply <= maxDrawsCount, "all minted");
+        uint256 tokenId = ++totalSupply;
+        seeds[tokenId] = drawSeed();
+        _mint(to, tokenId);
+    }
+
     function mint(address to) external payable {
-        require(totalSupply <= (4 + maxDrawsCount), "all minted");
+        require(totalSupply <= maxDrawsCount, "all minted");
         require(onSale, "not on sale");
         require(msg.value == PRICE, "invalid value");
         uint256 tokenId = ++totalSupply;
