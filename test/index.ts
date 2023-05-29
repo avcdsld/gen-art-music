@@ -12,20 +12,13 @@ let friction = 0.75; //摩擦
 let mass = 10.0; //質量
 var seed = Math.random() * 3;
 var t;
-var num, vNum;
-var radius, mySize, margin;
-var sizes = [];
-let bb = [];
-let gridSize = 400; // グリッドのサイズ
+var num;
+var radius, margin;
 let xoff = 0;
 let count = 0;
 let offcount = 0;
 let pp = [];
-let addForse;
 let arpha;
-let xoff1 = 0.0;
-let xoff2 = 10000.0;
-let xoff3 = 20000.0;
 let afterImage;
 var hed;
 var aspectRatio = 16 / 9;
@@ -74,12 +67,7 @@ let cmColors18=  ["#27a1a4","#ced5dc","#4166f5","#CBD5DC", "#CBD5DC"];
 let cmColors19=  ["#536fb0","#ced5dc","#849bab"];
 let cmColors20=  ["#ff3403","#ced5dc","#d78152"];
 
-
-
-
 let bkcolors = ["#afafb0", "#eae8e1", "#FAFAD2"]
-
-let colors10090 = ["#7D7D7D","#000000","#000000","#000000"];
 
 let colorsYve = ["#00008b"];
 let bkcolorsYve = ["#ced5dc"]
@@ -90,6 +78,33 @@ let whiteLineP2 = 250;
 let whiteLineP3 = 250;
 let whiteLineRandom =false;
 
+const A2S_RARITY = ["COMMON", "RARE", "SUPERRARE", "ULTRARARE","ONE_OF_ONE"]
+const A2S_RHYTHM = ["THICK", "LO_FI", "HI_FI", "GLITCH"]
+const A2S_LYRIC = ["LITTLE_BOY", "FUSSY_MAN", "OLD_MANN", "LITTLE_GIRL"]
+const A2S_OSCILLATOR = ["GLITCH", "LFO", "FREAK", "LYRA"]
+const A2S_ADSR = ["PIANO", "PAD", "PLUCK", "LEAD"]
+
+/**
+const A2S_TOKEN_ID = 5;
+const A2S_RARITY = "COMMON";
+const A2S_RHYTHM = "GLITCH";
+const A2S_OSCILLATOR = "GLITCH";
+const A2S_ADSR = "LEAD";
+const A2S_LYRIC = "SHUFFLE";
+*/
+const A2S_CU1 = "dGVzdDQ=";
+const A2S_CU2 = "dGVzdDA=";
+const A2S_CU3 = "dGVzdDM3";
+const A2S_CU4 = "dGVzdDIy";
+const A2S_CU5 = "dGVzdDEz";
+const A2S_CU6 = "dGVzdDI0";
+const A2S_CU7 = "dGVzdDEz";
+const A2S_CU8 = "dGVzdDE5";
+const A2S_CU9 = "dGVzdDk=";
+const A2S_CU10 = "dGVzdDMy";
+const A2S_CU11 = "dGVzdDY=";
+const A2S_CU12 = "dGVzdDM0";
+
 let type;
 let rhythm;
 let lyric;
@@ -97,32 +112,16 @@ let osc;
 let adsr;
 
 let mainObj;
-//let colors = [ "#ffffff", "#329fe3"];
-let shapes = [];
-const GAM_TOKEN_ID = 1;
-const GAM_RHYTHM = 1;
-const GAM_SPEECH = 1;
-const GAM_SYNTHESIZER = 0;
-const GAM_MELODY = 0;
-const GAM_PARAM1 = 0; // 0-9
-const GAM_PARAM2 = 0; // 0-9
-const GAM_PARAM3 = 0; // 0-9
-const GAM_PARAM4 = 0; // 0-9
 let myCamera;
-let sliderX, sliderY, sliderZ;
-let camX = 0,
-	camY = 0,
-	camZ = 0;
 let infoP;
 let infoP2;
-let ranMO = 0.02;
+let infoP3;
 let voiceRect = false;
 let bigCircle = false;
 let textureOn = false;
 var sphereArr = [];
 var sphereMax = 50;
 var trackCount = 15;
-let theShader;
 let numSpheres = 10;
 let spheres = [];
 let particles = [];
@@ -131,26 +130,14 @@ let helixRadius = 200;
 let helixHeight = 15;
 let helixTurns = 1;
 let helixStep = 0.2;
-let torusRadius = 100;
-let torusTubeRadius = 20;
-let knotRadius = 60;
-let knotNum = 7;
-let r = 100;
 let angle = 0;
-let angle2 = 0;
-//let size = 200;
 let polygons = [];
-let gl;
-let myShader;
 let xx = 0;
 let yy = 0;
 let zz = 0;
 let aaa = 110;
 let bbb = 128;
 let ccc = 8 / 1;
-//let xoff = 0.0;
-let xArray = [];
-let yArray = [];
 let cameraX = 0,
 	cameraZ = 0;
 const stepX = 10,
@@ -158,16 +145,23 @@ const stepX = 10,
 let t1 = 0,
 	t2 = 100;
 
-let _text;
-
 let dotPattern;
-let maxBranches = 1200;
 let noiseScale = 0.002;
 let noiseStrength = 1250;
 let maxBranchingAngle = Math.PI / 11;
 let minBranchLength = 111;
 let maxBranchLength = 113;
 let colors44 = ["#FFEB36", "#FF9D00", "#EF6100"];
+
+let mic;
+let micLevel;
+let micMode;
+let amplitude;
+let micAmplitude;
+let level;
+let addForce;
+let displayInfo = true;
+
 
 class Branch {
   constructor(x, y, z, angle, length) {
@@ -178,19 +172,6 @@ class Branch {
     this.length = length;
   }
 
-  createBranch() {
-    let angleNoise = noise(this.x * noiseScale, this.y * noiseScale, this.z * noiseScale);
-    let newAngle = map(angleNoise, 10, 1, -maxBranchingAngle, maxBranchingAngle) + this.angle;
-    let lengthNoise = noise(this.x * noiseScale, this.y * noiseScale, this.z * noiseScale + 0);
-    let newLength = map(lengthNoise, 0, 1, minBranchLength, maxBranchLength);
-    let dir = p5.Vector.fromAngles(newAngle, 10, 1);
-    dir.setMag(newLength/10);
-    let newX = this.x + dir.x;
-    let newY = this.y + dir.y;
-    let newZ = this.z + dir.z;
-    return new Branch(newX, newY, newZ, newAngle, newLength);
-  }
-
   show() {
     stroke(random(0,50));
     strokeWeight(0.1);
@@ -199,7 +180,6 @@ class Branch {
     rotateY(this.angle);
     noFill();
     beginShape();
-		//rotateX(0.1)
 		rotateY(0.1)
 		rotateZ(1)
     vertex(0, 0, 0);
@@ -208,25 +188,13 @@ class Branch {
     for (let i = 0; i <= 1; i++) {
       let x = r * cos(i * 2 * Math.PI / 9);
       let y = r * sin(i * 2 * Math.PI / 7);
-			let rand=random(1000)
-			//if(rand>4678){
 			
 			rotateZ(i*2)
-     // vertex(x, y, i * 0.001);
 			translate(x, y, i * 0.001)
-			//line(41,40,x,y)
-		//	line(-x,-y,x,y)
 			texture(dotPattern);
-	//		box(1400,200,200)
 			translate(x+x, y+y, i * 0.001)
-			//fill(random(colors))
 			fill(random(colors44))
 			texture(dotPattern2);
-			//fill(random(colors44))
-//			box(1400,200,200)
-			//vertex(x, y+frameCount, i * 0.2);
-			//vertex(x+frameCount, y, i * 0.3);
-		//	}
     }
     endShape(CLOSE);
     pop();
@@ -242,14 +210,21 @@ function getQueryParam(name) {
 }
 
 function preload() {
-  sound = loadSound('https://ara.mypinata.cloud/ipfs/QmR9JaP98AaTU5QiJx7chB9bM6b3J5WmosQve7tVj28wTf');
-	// sound = loadSound('./AAAA.mp3');
-	//	sound = loadSound('./master-01.mp3'); 
+	sound = loadSound('./AAAA.mp3');
 }
 
 
 function setup() {
+	//amplitude = new p5.Amplitude();
+	
+	mic = new p5.AudioIn();
+	fft = new p5.FFT(0.1, band);
+	fft.setInput(sound);
+	
 	amplitude = new p5.Amplitude();
+  amplitude.setInput(sound);
+//  micAmplitude = new p5.Amplitude();
+//  micAmplitude.setInput(mic);
 
 	setAttributes("alpha", false);
 
@@ -262,8 +237,6 @@ function setup() {
 	PARAM1 = int(random(10));  //A2S_PARAM1
 	PARAM2 = int(random(10));  //A2S_PARAM2
 	PARAM3 = int(random(10));  //A2S_PARAM3
-	//A2S_PARAM1 = random(10);
-	//textParam1 = A2S_CU1.length % 9;
 	textParam1 = decodeURIComponent(escape(window.atob(A2S_CU1)));
 	textParam2 = decodeURIComponent(escape(window.atob(A2S_CU2)));
 	textParam3 = decodeURIComponent(escape(window.atob(A2S_CU3)));
@@ -276,17 +249,14 @@ function setup() {
 	textParam10 = decodeURIComponent(escape(window.atob(A2S_CU10)));
 	textParam11 = decodeURIComponent(escape(window.atob(A2S_CU11)));
 	textParam12 = decodeURIComponent(escape(window.atob(A2S_CU12)));
-	theTEXT = textParam1 + " " + textParam2 + " " + textParam3 + " " + textParam4 + " " + textParam5 + " " + textParam6 + " " + textParam7 + " " + textParam8 + " " + textParam9 + " " + textParam10 + " " + textParam11 + " " + textParam12;
+	textParams = [textParam1, textParam2, textParam3, textParam4, textParam5, textParam6, textParam7, textParam8, textParam9, textParam10, textParam11, textParam12];
+  theTEXT = textParams[Math.floor(Math.random() * textParams.length)];
+	//theTEXT = textParam1 + " " + textParam2 + " " + textParam3 + " " + textParam4 + " " + textParam5 + " " + textParam6 + " " + textParam7 + " " + textParam8 + " " + textParam9 + " " + textParam10 + " " + textParam11 + " " + textParam12;
 	console.log(theTEXT)
 
 	hyperStripe = false;
 	hyperFlat = false;
 	rotateXZ = true;
-  //type="COMMON"
-  type="RARE"
-//	type="SUPERRARE"
-//	type="ULTRARARE"
-//	type="ONE_OF_ONE"
 	
 	///////////////////// Rarity毎の設定
 	if (type == "COMMON") {
@@ -301,14 +271,10 @@ function setup() {
 	} else {
 		rare = false;
 	}
-	
-	
 	if (type == "SUPERRARE") {
 		superRare = true;
-	//	hyperFlat = true;
 		textureOn = true;
 		hyperStripe = true;
-	//	rotateXZ =true;
 		afterImage = int(random(3));
 	} else {
 		superRare = false;
@@ -316,7 +282,6 @@ function setup() {
 	if (type == "ULTRARARE") {
 		ultraRare = true;
 		hyperStripe = true;
-		//hyperStripe = true;
 	} else {
 		ultraRare = false;
 	}
@@ -327,23 +292,10 @@ function setup() {
 	}else{
 	  oneOfOne = false;
 	}
-//	oneOfOne=true;
-	//superRare = true;
 	textureOn = true;
-	//common = true;
-	/**
-  	hyperMode =random(20);
-	if(hyperMode>19){
-		hyperStripe=true;
-	}if(hyperMode>19){
-	  hyperFlat=true;
-	}if(hyperMode>18){
-		rotateXZ=false;
-	}
-	*/
 	console.log("Rarity:" + type)
 	colrand = int(PARAM1);
-	//colrand=1;
+
 	if(!common){
 		randCol2 =random(10)
 		if(randCol2>5){
@@ -476,12 +428,10 @@ function setup() {
 
 	//ランダムにサブオブジェクトを決定する
 	subObj = int(random(3));
-	console.log("subObj:" + subObj)
-
+	//console.log("subObj:" + subObj)
 
 	////////////////after Image mode
 	//ADSRによってAfter Image Modeを決定する　ADSR=["PIANO","PAD","PLUCK","LEAD"]
-	//afImgR = random(20);
 	if (adsr == "PIANO") {
 		afterImage = 0;
 	} else if (adsr == "PAD") {
@@ -493,8 +443,7 @@ function setup() {
 	}else{
 	  afterImage = int(random(3));
 	}
-	console.log("ADSR:" + adsr)
-
+	//console.log("ADSR:" + adsr)
 
 	//particlesの設定
 	for (let i = 0; i < num_particles; i++) {
@@ -547,17 +496,14 @@ function setup() {
 		} else {
 			voiceRect = false;
 		}
-		//voiceRect = true;
 		uneRand = random(10)
 		if (uneRand > 9) {
 			uneune = true;
 		} else {
 			uneune = false;
 		}
-		//uneune=false;
 		sprObj = true;
 		conRect = false;
-		//inazuma=false;
 		baseLines = false;
 		polygonLine = true;
 	  particle = false
@@ -575,10 +521,8 @@ function setup() {
 		} else {
 			uneune = false;
 		}
-		//uneune=false;
 		sprObj = false;
 		conRect = true;
-		//inazuma=false;
 		baseLines = false;
 		polygonLine = true;
 	  particle = false;
@@ -621,13 +565,8 @@ function setup() {
 		conRect = false;
 		baseLines = false;
 		polygonLine = false;
-	  particle = false;	
-	
+	  particle = false;
 	}
-		
-	
-
-
 
 	/////////////////Osc Objects
 	//OSCILLATORに合わせてoscObjを決定する　OSCILLATOR=["GLITCH","LFO","FREAK","LYRA"]
@@ -646,45 +585,17 @@ function setup() {
 	circleRect = true;
 	circleRectH = 1;
 	////////////////rotateMode
-	/**
-  hyperStripe=false;
-  hyperFlat=false;
-  rotateXZ=true;
-	
-  hyperMode =random(20);
-  if(hyperMode>19){
-  	hyperStripe=true;
-  }if(hyperMode>19){
-    hyperFlat=true;
-  }if(hyperMode>18){
-  	rotateXZ=false;
-  }
-  */
 	frameRate(30);
 	randomSeed(seed);
 	minCanvasSize = min(windowWidth, windowHeight);
 	margin = minCanvasSize / 100;
 	createCanvas(windowWidth, windowHeight, WEBGL);
-	//	theShader = createShader(vs, fs);
 	textureMode(NORMAL);
 	
 	if(minCanvasSize<500){
 		friction = 0.25;
 		frameRate(30);
 	}
-	//  colorMode(HSB);
-	/**
-	whiteLRand=random(10);
-	if(whiteLRand>5){  /////線を全て白にする
-		gl = this._renderer.GL;
-		myShader = createShader(vs, fs);
-		shader(myShader);
-	}
-	*/
-	//  noFill();
-	//  gl.enable(gl.DEPTH_TEST); // 深度は基本無効になってるので有効にしておく
-	//WebGL = createGraphics(width, height, WEBGL);
-	//  background(220, 220, 220, 100);
 	background(240, 240, 230, 100);
 	
 	//ULTRA RAREの場合は黒
@@ -692,13 +603,9 @@ function setup() {
 		colors = ["#000000"];
 		background(0,0,0)
 	}
-	
-	
+
 	num = int(random(10, 30));
 	radius = minCanvasSize * 0.75;
-	//  for (let a = 0; a < TAU; a += TAU / num) {
-	//  sizes.push(random(0.1, 0.5))
-	//  }
 	t = 0;
 	fft = new p5.FFT(0.1, band);
 	fft.setInput(sound);
@@ -707,15 +614,14 @@ function setup() {
 		position2[i] = createVector(0, 0);
 	}
 	count = 0;
-	//	if(minCanvasSize<1000){
 	mRate = 1000 / minCanvasSize;
 	myCamera = createCamera();
 	infoP = createP();
 	infoP2 = createP();
+	infoP3 = createP();
 	infoP.position(20, 0);
 	infoP2.position(20,20);
-	//infoP2.style('font-size', '24px');
-	//mainObj=int(random(7));
+	infoP3.position(20,40);
 	arpha = 0.7;
 	polygon = int(random(12));
 	xmag = 1;
@@ -742,109 +648,44 @@ function setup() {
 		});
 	}
 
-
 	//事前に背景グリッドを描く
 	for (let t = 0; t < height / 4; t++) {
 		push();
-	//	stroke(255,255,255-t,255);
-	//	stroke(255 - t, 255 - t, 155, 1);
-	//	stroke(255-t/100,255-t/100,255,2);
+		stroke(255 - t, 255 - t, 155, 1);
 		randl = random(1000);
 		if (hyperStripe && randl > 0) {
-			push();
-			strokeWeight(0.1);
 			line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
-			pop();
 		}
 		if (randl > 995) {
 			if (baseLines) {
-			//	stroke(255 - t, 255 - t, 155, 1);
-		//		stroke(random(colors))
-				push();
-			  strokeWeight(0.1);
+				stroke(255 - t, 255 - t, 155, 1);
 				line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
-				pop();
 			}
 		}
-		if (randl > 950) {
-			// stroke(random(colors))
-			//  line(-width,-height/2+ t*4,width, -height/2 + t*4);
-		}
+		if (randl > 950) {}
 		pop();
 	}
-	/**
-	_text = createGraphics(window.innerWidth - 4, window.innerHeight - 4);
-	_text.textFont('Source Code Pro');
-  _text.textAlign(CENTER);
-  _text.textSize(133);
-  _text.fill(3, 7, 11);
-  _text.noStroke();
-  _text.text(textParam1, width * 0.5, height * 0.5);
-	*/
-	
-	
+
   dotPattern = createGraphics(40, 40);
   drawDotPattern();
 	dotPattern2 = createGraphics(140, 140);
   drawDotPattern();
-	
-//	dotPattern2 = createGraphics(40, 40);
- // drawDotPattern2();
-	
-	
-	//console.log(currentUrl);
-  //console.log(queryParams); 
 
   // クエリパラメータを取得
- // const cap = getQueryParam("cap");
- // console.log("cap:", cap);
-
+//  const cap = getQueryParam("cap");
+//  console.log("cap:", cap);
 }
 
 function drawDotPattern() {
   dotPattern.background(255, 255, 255, 0);
-//  dotPattern.fill(random(colors));
   dotPattern.stroke(random(colors))
- // dotPattern.noStroke();
 	
   for (let i = 0; i < dotPattern.width; i += 2) {
     for (let j = 0; j < dotPattern.height; j += 2) {
-			//fill(random(colors))
-		//	dotPattern.stroke(random(colors))
-			//stroke(random(colors))
-     // dotPattern.ellipse(i, j, 2, 2);
-		//	dotPattern.point(i,j,1,1)
 			rand=random(1000)
 			if(rand>980){
-		  	//dotPattern.line(i,j,i+1,j+10)
 				dotPattern.rect(i, j, 1, 20);
 			}
-		//	dotPattern.rect(i, j, 1, 20);
-    }
-  }
-}
-
-function drawDotPattern2() {
-  dotPattern.background(255, 255, 255, 0);
-//  dotPattern.fill(random(colors));
-  dotPattern.stroke(random(colors))
- // dotPattern.noStroke();
-	
-  for (let i = 0; i < dotPattern.width; i += 2) {
-    for (let j = 0; j < dotPattern.height; j += 2) {
-			//fill(random(colors))
-		//	dotPattern.stroke(random(colors))
-			//stroke(random(colors))
-     // dotPattern.ellipse(i, j, 2, 2);
-		//	dotPattern.point(i,j,1,1)
-			rand=random(1000)
-			if(rand>980){
-		  	//dotPattern.line(i,j,i+1,j+10)
-				for(let i=0; i<10;i++){
-				 dotPattern.point(i+random(-10,10), j+random(-10,10));
-				}
-			}
-		//	dotPattern.rect(i, j, 1, 20);
     }
   }
 }
@@ -862,58 +703,25 @@ function ease(x) {
 	}else{
 	  return 1 - 8 * pow(1 - x, 4);
 	}
-	//	return 20 - 8 * pow(1 - x, 4);
 }
-/**
-function createXYZslider(min, max, cam, pos) {
-    const slider = createSlider(min, max, cam, 1);
-    slider.position(pos.x, pos.y);
-    slider.style('width', '400px');
-    slider.input(function() {
-        cam = slider.value();
-    });
-    return slider;
-}
-*/
+
 function draw() {
-	scale(0.9)
-	/**
-	rotateX(frameCount*0.01)
-  rotateY(frameCount*0.004)
-	rotateZ(frameCount*0.01)
-	scale(0.2)
-  let branches = [];
-  branches.push(new Branch(0, 0, frameCount, 0, 0));
- // background(255,255,245);
-	
-  //translate(-width/2, -height/2);
-  //translate(0, 0, -200);
-  for (let i = 0; i < branches.length; i++) {
-			let rand=random(1000)
-			//if(rand>4678){
-      branches[i].show();
-		//	}
-    if (branches[i].length < maxBranchLength) {
-      if (branches.length < maxBranches) {
-        if (random(1) < 0.005) {
-          let newBranch = branches[i].createBranch();
-          branches.push(newBranch);
-        }
-      }
-    }
-  }
-	*/
-	//	translate(-300,600)
-	//音量が0.001以下になったらカウントリセット
 	const level = amplitude.getLevel()
+	if(micMode){
+
+	}else{		
+		if (level < 0.001 && sound.isPlaying() == true) {
+			count = 0;
+		} 
+	}
+	scale(0.9)
+	//音量が0.001以下になったらカウントリセット
 	if (level < 0.001 && sound.isPlaying() == true) {
 		count = 0;
 	} // easeの設定
 	let prg = 1 - abs(240 - count % 480) / 240;
 	prg = ease(prg);
 	scale(1, 1, 1 + 2 * prg);
-	//	myShader.setUniform("uCount", count);
-	//WebGL.shader(theShader);
 	drawR = random(10)
 	if (drawR > 7) {
 		count2++;
@@ -926,14 +734,8 @@ function draw() {
 	if (count2 > 500) {
 		count2 = 0; //count2 rest
 	}
-	if (count2 > 460) {
-		//	count2++; count++;  
-		//	rotateX(frameCount/5+45 + (int(random(4)) * 360) / 4);
-		//	rotate(-2);
-		//	return;
-	} //250-300の間は何もしない
+	if (count2 > 460) {} //250-300の間は何もしない
 	count2++
-
 
 	/////////////////background change setting
 	if (count > 4000) {
@@ -943,27 +745,19 @@ function draw() {
 	}
 	if (rare) {
 		hyperStripe = true;
-		//	rotateX(frameCount/500);
-		//		rotateY(frameCount/5+45 + (int(random(4)) * 360) / 4);
-		//rotateZ(frameCount/500);
 	}
 	if (hyperStripe) {
 		rotateX(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 	} else if (hyperFlat) {
-	
+
 	} else if (rotateXZ) {
 		rotateX(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
-		//	rotateY(frameCount/5+45 + (int(random(4)) * 360) / 4);
 		rotateZ(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 	} else {
 		rotateX(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 		rotateY(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 		rotateZ(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 	}
-	//	rotateY(frameCount/5+45 + (int(random(4)) * 360) / 4);
-
-
-
 	//十字キーで　Zoomなど操作
 	if (keyIsDown(LEFT_ARROW)) {
 		cameraX += stepX;
@@ -979,55 +773,44 @@ function draw() {
 
   if (superRare) {
 		rorand = random(100)
-		if(rorand>35){
+		if(rorand>80){
 	  	rotateX(frameCount / 5 + 45 + (int(random(4)) * 360) / 500);
-			//rotateZ(frameCount / 5 + 45 + (int(random(4)) * 360) / 4);
 		}
 	}
 
 	/////////////////// background glid setting
 	for (let i = 0; i < height / 4; i++) {
 		push();
-		//stroke(255,255,255-i,100);
 		stroke(255 - i, 255 - i, 155, 255);
-		//line(-width,height/2- i*2,width, height/2 - i*2);
 		pop();
 	}
 	for (let t = 0; t < height / 4; t++) {
 		push();
-		//stroke(255,255,255-t,255);
 		stroke(255 - t, 255 - t, 155, 100);
-		//	 line(-width,height/2+ t*2,width, height/2 + t*2);
 		pop();
 	}
 	for (let i = 0; i < height / 4; i++) {
 		push();
-		//stroke(255,255,255-i,100);
 		stroke(255 - i, 255 - i, 155, 255);
-		//	 line(-width,-height/2- i*2,width, -height/2 - i*2);
 		pop();
 	}
 	for (let t = 0; t < height / 4; t++) {
 		push();
-		//stroke(255,255,255-t,255);
-		
-			//stroke(255 - t, 255 - t, 155, 2);
-		    //console.log("randbkline:"+randbkline)
-				if(randbkline>8){ 
-					//stroke(255 - t, 100, 100, 1);
-					stroke(0, 100, 255-t, 1);
-				}else if(randbkline>8){
-					stroke(t, 255 - t, 155, 1);
-				}else if(randbkline>6){
-					stroke(t, 255 - t, 255-t, 1);
-				}else if(randbkline>4){
-					stroke(255-t, t, t,1);
-				}else if(randbkline>2){
-					stroke(t, t, t,1);
-				}else{
-				  stroke(235, 235, 235,1);
-				}
-		// stroke(255-t/100,255-t/100,255,2);
+
+		if(randbkline>8){ 
+			//stroke(255 - t, 100, 100, 1);
+			stroke(0, 100, 255-t, 1);
+		}else if(randbkline>8){
+			stroke(t, 255 - t, 155, 1);
+		}else if(randbkline>6){
+			stroke(t, 255 - t, 255-t, 1);
+		}else if(randbkline>4){
+			stroke(255-t, t, t,1);
+		}else if(randbkline>2){
+			stroke(t, t, t,1);
+		}else{
+			stroke(235, 235, 235,1);
+		}
 		randl = random(1000);
 		if (hyperStripe && randl > 0) {
 			push();
@@ -1037,8 +820,7 @@ function draw() {
 		}
 		if (randl > 995) {
 			if (baseLines) {
-			//	stroke(255 - t, 255 - t, 155, 2);
-				if(randbkline>8){ 
+				if(randbkline>8){
 					stroke(255 - t, 100, 100, 2);
 				}else if(randbkline>8){
 					stroke(t, 255 - t, 155, 2);
@@ -1054,48 +836,30 @@ function draw() {
 				line(-width, -height / 2 + t * 4, width, -height / 2 + t * 4);
 			}
 		}
-		if (randl > 950) {
-			// stroke(random(colors))
-			//  line(-width,-height/2+ t*4,width, -height/2 + t*4);
-		}
-		//pop();
 	}
-	if (count > 2500) {
-		//s 	myCamera.camera(0, 0, 0 + (height / 2.0) / tan(180 * 26 / 180.0), 0, 0, 0, 0, 1, 0);
-	}
-	//	myCamera.camera(0, 0, 0 + (height / 2.0) / tan(180 * 26 / 180.0), 0, 0, 0, 0, 1, 0);
-
-
-	//
-	/**
-	cameraRand = random(100)
-	if(cameraRand>80){
-	  camera(cameraX +0, 0, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-	}else if(cameraRand>70){
-		camera(cameraX +500, -500, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-	}else if(cameraRand>60){
-		camera(cameraX +500, -500, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-	}else if(cameraRand>20){
-	}
-	*/
 	camera(cameraX + 0, 0, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-
-
-
-	infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type+"-"+colrand + "    Rarity:" + type + "   Level:" + level);
-	infoP2.html(theTEXT );
 	
- // texture(_text);
- // rotateY(map(mouseX, 0, width, 0, 3));
-//  plane(window.innerWidth - 400, window.innerHeight - 400);
-	
-	
+  if (displayInfo) {
+		if(micMode){
+			infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type+"-"+colrand + "    Rarity:" + type);
+			infoP2.html("MicMode Force:" + addForce);
+			infoP3.html(theTEXT );
+		}else{
+			infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type+"-"+colrand + "    Rarity:" + type);
+			infoP2.html("Level:" + level);
+			infoP3.html(theTEXT );
+		}
+	}else {
+    infoP.html('');
+    infoP2.html('');
+    infoP3.html('');
+  }
+
 	rand = random(1000); //以降で利用するrand
 
 	if (ultraRare) {
 		if (rand < 100) {
 			background(50, 50, 50);
-			//return;
 		}
 	}
 	//////
@@ -1119,14 +883,9 @@ function draw() {
 				d = map(d1, 0, 1, -50, 50) + map(d2, 0, 1, -50, 50);
 				x = cos(ang) * (500 + d * level * whiteLineP2);
 				y = sin(ang) * (500 + d * level * whiteLineP3);
-				//	x = cos(ang) * (200 + d*15);
-				//  y = sin(ang/4) * (200 + d*15);
-				//	fill(200/i%2,50,200,20)
 				stroke(50, 200 / i % 2, 200, 100)
-				//fill(255,255,255,140*level*5)
 				noFill();
 				stroke(random(155,255))
-				//stroke(0,0,0,0)
 				if(count>2000){
 					cnt=1000
 				}else{
@@ -1137,8 +896,6 @@ function draw() {
 					if(randCu>950){
 						curveVertex(x+i, y+i);
 					}
-				//curveVertex(x, y);
-				//curveVertex(x, y);
 				}
 			}
 			endShape(CLOSE);
@@ -1155,7 +912,6 @@ function draw() {
 			translate(-width / 2, -height / 2)
 			beginShape();
 			noFill();
-			//fill(240)
 			for (let t = 0; t <= TWO_PI * 2; t += 0.5) {
 				let r = map(noise(t * 0.01, frameCount * 0.01), 0, 1, 650, 2);
 				let x = r * cos(t) + width / 2;
@@ -1203,47 +959,70 @@ function draw() {
 		}
 		endShape(CLOSE);
 	}
-
-
-	//  音楽がplayでない時は200カウント毎にbackgroundを強制切り替え
-	if (offcount % 200 == 0 && sound.isPlaying() == false) {
-		if(ultraRare){
-			background(50, 50, 50);
-		}else{
-		  background(random(bkcolors));
-		}
-	}
-	// 300カウント毎にbackgroundを強制切り替え
-	if (count % 300 == 0 && sound.isPlaying() == true) {
-		background(240, 240, 220);
-	}
-
-
-	changeBK = true;
-	if (changeBK && sound.isPlaying() == true) {
-		// 300カウント毎にbackgroundを強制切り替え
-		if (count % 300 == 0) {
-			background(240, 240, 220);
-		}
-//	if (rand > 950 || count % 150 == 0) {
-		if (rand > 950 ) {
-			if (count < 870) {
-				background(240, 240, 220);
-			} else if (count > 870 && rand > 975) {
-				background(random(colors));
-			} else if (count > 870) {
+	
+	if(micMode){
+			//  音楽がplayでない時は200カウント毎にbackgroundを強制切り替え
+		if (offcount % 200 == 0 && addForce < 90) {
+			if(ultraRare){
+				background(50, 50, 50);
+			}else{
 				background(random(bkcolors));
 			}
-			if (count > 2) {
-				rect(-width, -height, width * 2, height * 2)
-			}
-			/**
-			if( rand>995){
+		}
+		// 300カウント毎にbackgroundを強制切り替え
+		if (count % 300 == 0 && addForce < 90) {
+			background(240, 240, 220);
+		}
+		changeBK = true;
+		if (changeBK && addForce < 90) {
+			// 300カウント毎にbackgroundを強制切り替え
+			if (count % 300 == 0) {
 				background(240, 240, 220);
-			}else{
-				background(220, 220, 220, 100);
 			}
-			*/
+			if (rand > 950 ) {
+				if (count < 870) {
+					background(240, 240, 220);
+				} else if (count > 870 && rand > 975) {
+					background(random(colors));
+				} else if (count > 870) {
+					background(random(bkcolors));
+				}
+				if (count > 2) {
+					rect(-width, -height, width * 2, height * 2)
+				}
+			}
+		}
+	}else{
+		//  音楽がplayでない時は200カウント毎にbackgroundを強制切り替え
+		if (offcount % 200 == 0 && sound.isPlaying() == false) {
+			if(ultraRare){
+				background(50, 50, 50);
+			}else{
+				background(random(bkcolors));
+			}
+		}
+		// 300カウント毎にbackgroundを強制切り替え
+		if (count % 300 == 0 && sound.isPlaying() == true) {
+			background(240, 240, 220);
+		}
+	  changeBK = true;
+		if (changeBK && sound.isPlaying() == true) {
+			// 300カウント毎にbackgroundを強制切り替え
+			if (count % 300 == 0) {
+				background(240, 240, 220);
+			}
+			if (rand > 950 ) {
+				if (count < 870) {
+					background(240, 240, 220);
+				} else if (count > 870 && rand > 975) {
+					background(random(colors));
+				} else if (count > 870) {
+					background(random(bkcolors));
+				}
+				if (count > 2) {
+					rect(-width, -height, width * 2, height * 2)
+				}
+			}
 		}
 	}
 
@@ -1252,87 +1031,58 @@ function draw() {
 		// After Image 残像の設定
 		if (afterImage == 1) {
 			if (ra > 5) {
-				fill(240, 240, 220, 10)
+				fill(240, 240, 220, 20)
 			} else {
-				fill(240, 240, 120, 10)
+				fill(240, 240, 120, 20)
 			}
 		} else if (afterImage == 2) {
 			if (ra > 5) {
-				fill(240, 240, 240, 10)
+				fill(240, 240, 240, 40)
 			} else {
-				fill(240, 240, 240, 10)
+				fill(240, 240, 240, 40)
 			}
 		}
-		if (ra > 5) {
-			//  fill(240, 240, 220,10)
-		} else {
-			//  fill(230, 230, 240,10)
-		}
-		//
 		if (afterImage > 0) {
 			if (count > 2) {
 				rect(-width, -height, width * 2, height * 2)
 			}
 		}
 	}
-	
+
 	randomSeed(seed);
 	randW = random(-400, 400)
 	randH = random(-400, 400)
 	/////////////////// sound spectrum trigger setting
 	let spectrum = fft.analyze();
-	//console.log(spectrum.length)
-	//spectrum=createDummySpectrum();
-
 
 	for (i = 0; i < spectrum.length; i++) {
 		//スペクトルの強さを抽出
 		let val = map(spectrum[i], 0, 255, 0, 1);
-		//console.log(spectrum[i]);
 		//スペクトルの強さから加える力を算出
 		addForce = val * minCanvasSize * mRate * i / float(band) * 1.0 + 10 * mRate;
-
-		//音楽が停止している際の設定
-		if (sound.isPlaying() == false) {
-			//translate(-400,400)
-			//addForce = random(200, 350);
-			addForce = random(200, 450);
-			//spectrum[i] = random(-200, 200);
-			spectrum = createDummySpectrum();
-			angle = getRandomAngle();
-			frameCount = random(6000)
-			rotateX(0.01)
-		  rotateY(0.01)
-			rotateZ(random(-0.05,0.05))
-			//translate(0,600)
-			//camera(cameraX , 0, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-			//再生停止中はoffcountをカウントする
-			offcount++;
-			//level=random(200)
-			//console.log("OFF")
+	  if(!micMode){
+			//音楽が停止している際の設定
+			if (sound.isPlaying() == false) {
+				addForce = random(200, 450);
+				spectrum = createDummySpectrum();
+				angle = getRandomAngle();
+				frameCount = random(6000)
+				rotateX(0.01)
+				rotateY(0.01)
+				rotateZ(random(-0.05,0.05))
+				//再生停止中はoffcountをカウントする
+				offcount++;
+			}
 		}
-		//addForce = random(addForce - 20, addForce + 20)
-		/**
-			 push();
-			let r = map(spectrum[i], 0, 255, 0, 200);
-			let x = map(i, 0, spectrum.length, 0, width);
-			let y = 0;
-			let z = sin(frameCount * 0.01 + x * 0.1) * r;
-			//translate(x/10, y, x);
-			fill(255);
-			sphere(510);
-			pop();
-			*/
 		rand = random(1000);
 		if (rand > 990) {
 			push();
 			fill(colorAlpha(random(colors), arpha))
 			stroke(random(colors))
-			//////////////////////// 
+			////////////////////////
 			push();
 			if (circleRect && spectrum[20] > 0 && circleRectH > 0) {
 				stroke(0, 0, 0, 0)
-				// rect(spectrum[20] * 2, spectrum[20] * 2, spectrum[20] * circleRectH, 10);
 			}
 			pop();
 			if (oscObj) {
@@ -1345,23 +1095,6 @@ function draw() {
 						hed.show();
 					} else if (oscObj == 2) {
 						hed.show();
-						
-						/**
-						//	translate(random(400 * mRate), random(-400 * mRate));
-						//rotate(random(-2,2));
-						push()
-						noFill();
-						let st = 200;
-						x1 = random(st - 100, st + 100);
-						y1 = random(st - 100, st + 100);
-						w1 = random(200);
-						translate(count / 100, count / 100);
-						for (let i = 0; i < 20; i += 4) {
-							//	 rect(x1+(-i,i*2),y1+(-i,i*2),w1+i+(-1,4));
-							rect(x1 + (-i, i), y1 + (-i, i), w1 + i + 4 + count / 100);
-						}
-						pop();
-						*/
 					} else if (oscObj == 3) {
 						push()
 						noFill();
@@ -1371,33 +1104,9 @@ function draw() {
 						w1 = random(500);
 						translate(random(count / 10), random(count / 10));
 						for (let i = 0; i < 2; i++) {
-							//	 rect(x1+(-i,i*2),y1+(-i,i*2),w1+i+(-1,4));
 							circle(x1 + (-i, i), y1 + (-i, i), w1 + i + 4 + count / 5 * mRate);
 						}
 						pop();
-						/**
-									let aa = 30;
-									let bb = 250;
-									let deltaa = 0.02;
-									let xx, yy;
-
-									beginShape();
-									for (let t = 0; t <Math.PI; t += deltaa) {
-										xx = aa * Math.sin(t* aa)/10;
-										yy = bb * Math.cos(t * bb)*10;
-
-										// Change the value of a and b over time
-									//	x = 30 + 2 * Math.sin(frameCount * 0.01);
-									//	y = 50 + 2 * Math.cos(frameCount * 0.01);
-
-									//	vertex(xx, yy);
-										randr=random(100)
-										if(randr>95){
-											rect(xx-10,yy,20)
-										//	circle(x,y,100)
-										}
-									}
-									*/
 					} else if (oscObj == 4) {
 						randosc4 = random(100)
 						if (randosc4 > 95) {
@@ -1415,7 +1124,6 @@ function draw() {
 									d = map(d1, 0, 1, -50, 50) + map(d2, 0, 1, -50, 50);
 									x = cos(ang / 4) * (200 + d * 15);
 									y = sin(ang) * (200 + d * 15);
-									//fill(200,50,200,20)
 									noFill();
 									stroke(random(colors))
 									curveVertex(x, y);
@@ -1430,29 +1138,20 @@ function draw() {
 				}
 			}
 			/////////////////// sound spectrum trigger setting
-			//rand=random(1000);
 			if (voiceRect) {
-			//	translate(random(-1200,1200),random(-1200,1200))
 				rotate(random(-2, random(12)));
 				let x1 = map(Math.log10(i), 0, Math.log10(spectrum.length), width / 2, width);
 				let x2 = map(Math.log10(i), 0, Math.log10(spectrum.length), width / 2, 0);
-				let h1 = map(Math.log10(i), 0, Math.log10(spectrum.length), 0, 128);
 				let diameter = map(pow(spectrum[i], 2), 0, pow(255, 2), 0, height);
-				//fill(h1, 255, 255, 15);
 				push();
 				fill(colorAlpha(random(colors), 0.1));
-				//	push();
-				//translate(-width / 2, -height / 2);
-			//	texture(dotPattern2)
 				rect(x1, height / 2, diameter + level * 5 * mRate);
 				rect(x2, height / 2, diameter + level * 5 * mRate);
 				pop();
 			}
-			pop();
 			push();
 			beginShape();
 			noFill();
-			//	  stroke(random(colors2))
 			rand = random(1000)
 			if (rand > 900) {
 				if (polygonLine) {
@@ -1461,9 +1160,7 @@ function draw() {
 						let angle = TWO_PI / polygon * k;
 						let px = cos(angle) * 520 / 2 * addForce / 3;
 						let py = sin(angle) * 520 / 2 * addForce / 3;
-						//	translate(random(-100,100),random(-100,100))
 						stroke(random(colors))
-						//	strokeWeight(random(10))
 						vertex(px, py);
 					}
 				}
@@ -1474,27 +1171,16 @@ function draw() {
 		rand100 = random(1000);
 		if (rand < 10) {}
 		if (spectrum[20] < 100 && spectrum[20] > 80) {
-			//	fill(255,255,0)
-			//  rect(spectrum[20] * 2, spectrum[20] * 2, 50);
 		}
 		if (addForce > 120 && addForce < 140 && rand > 935) {
-			//	drawvera30();
-			//	stroke(220,0,0,250);
-			//	fill(0,0,0,0);
-			//	rect(0, 0, count5+coun5t/2)
-			//	circle(0, 0, width - count+count/2);
 		}
 		if (addForce < 120 && addForce > 100 && rand > 935) {
-			//	stroke(1);
 			push();
-			//rectMode(CENTER);
 			st = count5 * 1;
 			noFill();
 			strokeWeight(1);
-			//rotate(10)
 			stroke(random(colors))
 			if (conRect) {
-			//	rect(randW, randH, width - count5)
 			}
 			count5 += 10;
 			if (count5 > 5000) {
@@ -1503,12 +1189,8 @@ function draw() {
 		}
 		//////////////////////////// addForce > 450
 		if (addForce > 450 && sound.isPlaying() == true) {
-			
 			background(220, 220, 220, 100);
-			//fill(220,220,220,10)
-			//rect(0,0,width,height);
 		}
-		//	addForce = val * minCanvasSize * i / float(band) * 1.0 + 10;
 		//角度をランダムに決定
 		let direction = radians(random(0, 360));
 		//角度からX方向とY方向の力を算出
@@ -1549,13 +1231,9 @@ function draw() {
 			/////////////////////////////addForce > 250
 			if (addForce > 250) {
 				translate(random(400 * mRate), random(-400 * mRate));
-				//	camera(0, 0, height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
-				//		myCamera.camera(random(255), random(255), random(255) + (height / 2.0) / tan(180 * 30.0 / 180.0), 0, 0, 0, 0, 1, 0);
 				push();
 				stroke(220, 0, 0, 250);
 				fill(0, 0, 0, 0);
-				//rect(0, 0, count+count/2)
-				//	fill(240,240,220)
 				if (count > 3 && bigCircle) {
 					circle(0, 0, width - count + count / 2 * mRate);
 				}
@@ -1564,17 +1242,12 @@ function draw() {
 				if (rand > 0) {
 					push();
 					fill(colorAlpha(random(colors), arpha))
-					//random(colors);
-					//stroke(0,0,0,0)
 					rect(spectrum[20] * 2 * mRate, spectrum[20] * 2 *mRate, spectrum[20] * 2 *mRate);
 					pop();
 				}
 				if (circleRect && spectrum[20] * 2 > 130) {
-					// translate(random(400 * mRate), random(-400 * mRate));
 					rotate(random(-2, 2));
 					push();
-					//	ip.show();
-					//translate(random(400 * mRate), random(-400 * mRate));
 					rect(spectrum[20] * 2 *mRate, spectrum[20] * 2 * mRate, spectrum[20] * circleRectH *mRate, 10 *mRate);
 					pop();
 				}
@@ -1583,7 +1256,6 @@ function draw() {
 			if (addForce > 300) {}
 			///////////////////////////////addForce121-140
 			if (addForce > 120 && addForce <= 140 && rand > 435) {
-				//	drawvera30();
 				push();
 				stroke(220, 0, 0, 250);
 				fill(0, 0, 0, 0);
@@ -1593,31 +1265,22 @@ function draw() {
 				rect(0, 0, width - count)
 				line(width, width - count * 3, 0, count * 3 * mRate);
 			}
-			/////////////////////////////////addForce100-120	
+			/////////////////////////////////addForce100-120
 			if (addForce <= 120 && addForce >= 100) {
-
 			}
-			//textSize(50);
-			//text(count,550,550);	
-			// translate(200, -200);
-			//
 			if (mainObj == 1) {
 				randMO = 2;
 			} else {
 				randMO = 0.02;
 			}
 
-			//for (let q = 0; q < 1 / 5; q += 2 * random(0.01, 2)) {
 			for (let q = 0; q < 1 / 5; q += 2 * random(0.01, randMO)) {
-				//for (let q = 0; q < 1 / 5; q += 2 * random(0.01, 2)) {
 				for (let j = 0; j < 1; j++) {
 					let n = noise(q * t, j * t, frameCount * 0.01);
 					rotateX(random(TAU) + sin(-t) / 5 + q);
 					rotateY(random(TAU) + cos(t) / 5 + q);
 					rotateZ(random(TAU) + sin(-t) / 5 + q);
 					noStroke();
-					//fill(random(color_setup2));
-					// fill(0, 50, h, h);
 					fill(colorAlpha(random(colors), arpha));
 					num = 20;
 					for (let i = 0; i < num; i += 8) {
@@ -1627,16 +1290,7 @@ function draw() {
 						rotateX(random(TAU) + sin(t) * random(TAU));
 						rotateY(random(TAU) + cos(-t) + n / 10 * random(TAU));
 						rotateZ(random(TAU) + 2 * sin(2 * t) + addForce / 20 * random(TAU));
-						let x_plus = 1.25 * random(-d, d) / 1 * xmag;
-						let y_plus = 1.25 * random(-d, d) / 1 * ymag;
 						let z_plus = 1.25 * random(-d, d) / 1 * zmag;
-						//	translate(x_plus/2, y_plus/2, z_plus/2);
-						// circle(0,0, x_plus);
-						// circle(0,0, y_plus);
-						//		rect(z_plus,random(1),addForse,addForse);
-						//		circle(z_plus,random(1),addForse,addForse);
-						// 		cylinder((z_plus+parseInt(addForce/100))*mRate,random(100),parseInt(parseInt(addForce/100)*mRate));
-						//		torus(z_plus*mRate,random(1),parseInt(parseInt(addForce/100)*mRate));
 						ran = random(1000);
 						if (spectrum[i] > 190 && ran > 950) {
 							push();
@@ -1648,59 +1302,25 @@ function draw() {
 							noFill();
 
 							stroke(random(50), random(50), random(200), random(100));
-							//		ellipse(random(-(spectrum[i]*2),spectrum[i]*2),random(-(spectrum[i]*2),spectrum[i]*2),random(addForce*3),parseInt(addForce-spectrum[i]),parseInt(random(addForce-spectrum[i]/2)));
 							if (!(count > 850 && count < 1500)) {
 								stroke(random(colors));
-								//	 circle(0,0,random(200,addForce*40)/5);
 							}
 							pop();
 						}
-						//	ran=random(1000);
 						if (ran < 300) {
 							push();
-							//	push();
-							//		translate(-275, 175);
-							//	rotateY(random(1.25));
-							//	rotateX(-0.9);
-							//    ambientLight(255);             // ※light
-							//   ambientMaterial(220, 220, 30, 30);  ※light
 							stroke(0, 0, 0, 0)
-							//translate(100,0)
-							if (count > 820 && count < 1900) {
-								//cylinder((z_plus+parseInt(addForce/100)),random(5)+random(15),parseInt(parseInt(addForce/1000)));
-								//cylinder((z_plus+parseInt(addForce/100)),random(2),parseInt(parseInt(addForce/100)));
-								//torus(z_plus,random(1),parseInt(parseInt(addForce/100)));
-							}
+							if (count > 820 && count < 1900) {}
 							pop();
 						}
-						//  ambientLight(60, 60, 60);   ※light
-						//   pointLight(255, 255, 255, 50, 100, 100);  ※light
 						/////////////////////////////////addForce > 250
 						if (addForce > 250) {
-					
-
-							//  box(z_plus*mRate,random(105)*mRate,parseInt(addForce/2)*mRate);
 							for (let i = 0; i < 10; i++) {
 								push();
 								pointLight(255, 255, 255, 250, 250, 100); //※light
-								//  pointLight(0, 0, 0, 0, 100, 100);  //※light
-								//  ambientLight(20);
-								
 								ambientLight(220); //※light //henkou
-								
-								
-							//	ambientMaterial(50, 50, 100, 250);  //※light
-								
-								
 								ambientMaterial(random(colors)); //henkou
-								
-								
-								//	ambientMaterial(10,10,230);
-								//	ambientMaterial(0,120,120);
-								//		ambientMaterial(205);
-								//		fill(255,255,255,255)
-								//noFill();
-								//time
+
 								if (count > 820 && count < 2000) {
 									if (subObj == 0) {
 										if(mainObj == 1){
@@ -1719,14 +1339,10 @@ function draw() {
 
 								rand = random(100)
 								if (rand > 20) {
-									//mainObj=3;
-									//mainObj=int(random(2,4))
-									
-								//	mainObj=1;
 									///////////////////////////////※※※※※※※※※※※MAIN OBJECT SETTING※※※※※※※※※※※※
 									if (mainObj == 0) {
 										push();
-										
+
 										randm1 =random(100)
 										if(randm1>50){
 										  fill(colorAlpha(random(colors), arpha));
@@ -1734,12 +1350,10 @@ function draw() {
 											noFill();
 											stroke(0)
 										}
-										//fill(colorAlpha(random(colors), arpha));
-									//	stroke(0)
 										if(textureOn){
 										  texture(dotPattern);
 										}
-										box((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 5) * mRate, int((parseInt(addForce / 2) * 3) * mRate));
+										box(int((z_plus + i * 10) * mRate), int((random(105) + i * 10) * mRate), int((i * 5) * mRate), int(int((parseInt(addForce / 2) * 3) * mRate)));
 										pop();
 									} else if (mainObj == 1) {
 										push();
@@ -1758,30 +1372,21 @@ function draw() {
 											stroke(colorAlpha(random(colors), arpha))
 											noStroke();
 											let r = 2;
-											if(textureOn){
-											//  texture(dotPattern);
-											}
+											if(textureOn){}
 											ellipse(xx * r, yy * r, 280 * mRate, 280 * mRate);
 										}
 										pop();
 
 										push();
 										beginShape(TRIANGLE_STRIP);
-										//	helixRadius=random(helixRadius);
 										randob=random(100)
 										if(randob>90){
 											for (let i = 0; i <= helixTurns * TWO_PI; i += helixStep) {
 												let x = helixRadius * cos(i);
 												let y = helixRadius * sin(i);
 												let z = helixHeight * i / helixTurns;
-												//stroke(0,0,0,0)
 												stroke(colorAlpha(random(colors), arpha))
-												//noStroke();
-												
-							
 												vertex(x, y, z);
-								
-											//	vertex(x, y, z - helixHeight);
 											}
 										}
 										endShape();
@@ -1796,34 +1401,10 @@ function draw() {
 										fractal(random(200,600), 0, 0, 10);
 										angle += 0.02;
 										pop();
-										/**
-											rand=random(100)
-											if(rand>95){
-											for (let i = 0; i < polygons.length; i++) {
-												beginShape();
-												let poly = polygons[i];
-												for (let j = 0; j < poly.length; j++) {
-													randd=random(100)
-													if(randd>85){
-													vertex(poly[j].x, poly[j].y, poly[j].z);
-													}
-												}
-												endShape(CLOSE);
-											}
-											}
-											*/
-										//	push();
-										// drawvera30()
-										//	fill(colorAlpha(random(colors), arpha));
-										//	strokeWeight(20);
-										//  stroke(0);
-										//		box((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 50) * mRate, int((parseInt(addForce / 2) * 3) * mRate));
 										pop();
 									} else if (mainObj == 2) {
 										noStroke();
-										//rotateY(frameCount / 40.0);
-										//	rotateX(frameCount / 600.0);
-										
+
 										randm1 =random(100)
 										if(randm1>50){
 										  fill(colorAlpha(random(colors), arpha));
@@ -1831,18 +1412,13 @@ function draw() {
 											noFill();
 											stroke(0)
 										}
-										//fill(colorAlpha(random(colors), arpha));
-										//texture(dotPattern);
-										box((z_plus + i * 10) * mRate, (random(105) + i * 10) * mRate, (i * 5) * mRate, int((parseInt(addForce / 2) * 3) * mRate));
+										box(int((z_plus + i * 10) * mRate), int((random(105) + i * 10) * mRate), int((i * 5) * mRate), int(int((parseInt(addForce / 2) * 3) * mRate)));
 										//回転をくりかえしながら立方体を描画
 										for (let i = 0; i < 1; i++) {
 											push();
 											rotateZ(frameCount * 0.01);
-											//	rotateX(frameCount * 0.01);
-											//	rotateY(frameCount * 0.01);
 											noFill();
 											stroke(random(colors));
-											//texture(dotPattern);
 											randC=random(1000);
 											if(randC>980){
 											  cylinder(100 + addForce * mRate, 2, 10, 2);
@@ -1850,47 +1426,26 @@ function draw() {
 											pop();
 										}
 									} else if (mainObj == 3) {
-										let hue = random(40, 80);
 										noStroke();
-										// let fillColor = color( hexToRgb(random(colors)));
-										// fill(fillColor.setAlpha(100));
 										fill(colorAlpha(random(colors), arpha));
-										//　fillColor.setAlpha(100);
 										let fuzzX = 0 + map(random(), 0, 200, 0, height / 10);
 										let fuzzY = 0 + map(random(), 0, 200, 0, height / 10);
 										if(sound.isPlaying() == false){
 										  rotateX(0.01);
 											rotateY(0.01);
-											//rotateZ(0.01);
 										}
 										if(textureOn){
 										  texture(dotPattern);
 										}
 										if (dist(0, 0, fuzzX, fuzzY) < height * 2) {
 											ellipsoid(2, 180 * mRate, 40 * mRate);
-											
-											/**
-											translate(random(1000),random(1000),random(1000))
-											ellipsoid(2, 280, 80);
-											*/
-											// circle(fuzzX, fuzzY, map(random(), 400, 10, height /2, height / 2));
 										}
-										if (dist(0, 0, fuzzX, fuzzY) < height) {
-										//	ellipsoid(2, 280, 80);
-											
-											/**
-											translate(random(1000),random(1000),random(1000))
-											ellipsoid(2, 280, 80);
-											*/
-											// circle(fuzzX, fuzzY, map(random(), 400, 10, height /2, height / 2));
-										}
+										if (dist(0, 0, fuzzX, fuzzY) < height) {}
 									} else if (mainObj == 4) {
 										randrr = random(1000)
 										if (randrr > 985) {
-											//  torus(300, 50, 3, 3);
 											rotateY(frameCount * .01);
 											rotateX(PI / 2);
-											//ambientMaterial(hu%360, 100, 100);
 											cone(300, 300, 3, 1);
 										}
 									} else if (mainObj == 5) {
@@ -1910,7 +1465,6 @@ function draw() {
 													x = cos(ang / 4) * (200 + d * 15);
 													y = sin(ang) * (200 + d * 15);
 													fill(200, 50, 200, 20)
-													//noFill();
 													stroke(random(colors))
 													curveVertex(x, y);
 												}
@@ -1920,8 +1474,6 @@ function draw() {
 											t1 += 1;
 											t2 += 2;
 										}
-										//t1 += 1;
-										//t2 += 2;
 									} else if (mainObj == 6) {
 										for (let x = 0; x < 5; x++) {
 											for (let y = 0; y < 5; y++) {
@@ -1931,10 +1483,6 @@ function draw() {
 											}
 										}
 									} else if (mainObj == 8) {
-										//		let a = 130;
-										//		let b = 20;
-										let delta = 0.01;
-										let x, y;
 										beginShape();
 										let aa = 30;
 										let bb = 250;
@@ -1944,20 +1492,13 @@ function draw() {
 										for (let t = 0; t < Math.PI; t += deltaa) {
 											xx = aa * Math.sin(t * aa) / 10;
 											yy = bb * Math.cos(t * bb) * 10;
-											// Change the value of a and b over time
-											//	x = 30 + 2 * Math.sin(frameCount * 0.01);
-											//	y = 50 + 2 * Math.cos(frameCount * 0.01);
-											//	vertex(xx, yy);
 											randr = random(100)
 											if (randr > 95) {
 												rect(xx - 10, yy, 20)
-												//	circle(x,y,100)
 											}
 										}
 										randrr = random(100)
-										if (randrr > 95) {
-											//rect(x,y,200)
-										}
+										if (randrr > 95) {}
 										endShape();
 									} else if (mainObj == 9) {
 										let a = 130;
@@ -1970,23 +1511,15 @@ function draw() {
 											x = a;
 											y = b * Math.cos(t * b);
 											y = b;
-											// Change the value of a and b over time
-											//	x = 30 + 2 * Math.sin(frameCount * 0.01);
-											//	y = 50 + 2 * Math.cos(frameCount * 0.01);
-											//	vertex(x, y);
 											randr = random(1000)
 											if (randr > 998) {
-												//	circle(x-10,y,50)
 												translate(100, 10)
 												rotate(10)
 												sphere(int(50), int(50))
-												//	circle(x-10,y,40)
 											}
 										}
 										randrr = random(100)
-										if (randrr > 95) {
-											//rect(x,y,200)
-										}
+										if (randrr > 95) {}
 										endShape();
 										let aa = 30;
 										let bb = 250;
@@ -1996,19 +1529,11 @@ function draw() {
 										for (let t = 0; t < 2 * Math.PI; t += deltaa) {
 											xx = aa * Math.sin(t * aa) / 100;
 											yy = bb * Math.cos(t * bb) * 20;
-											// Change the value of a and b over time
-											//	x = 30 + 2 * Math.sin(frameCount * 0.01);
-											//	y = 50 + 2 * Math.cos(frameCount * 0.01);
-											//	vertex(xx, yy);
 											randr = random(100)
-											if (randr > 95) {
-												//  circle(xx-10,yy,20)
-											}
+											if (randr > 95) {}
 										}
 										randrr = random(100)
-										if (randrr > 95) {
-											//rect(x,y,200)
-										}
+										if (randrr > 95) {}
 										endShape();
 									}
 
@@ -2022,28 +1547,7 @@ function draw() {
 										}
 										pop();
 									}
-
-									/**
-									else if(mainObj==2){
-										noStroke();
-										rotateY(frameCount / 40.0);
-										rotateX(frameCount / 600.0);
-
-										//回転をくりかえしながら立方体を描画
-										for (let i = 0; i < 1; i++) {
-											push();
-											//specularMaterial(i, 90, 255 - i);
-											rotateX(frameCount / 240.0 + i / 2.0);
-											rotateY(frameCount / 240.0 + i / 22.0);
-											rotateZ(frameCount / 240.0 + i / 24.0);
-											box(width / 24.0);
-											pop();
-										}
-									}
-									*/
 								}
-								//	}
-								//	box(z_plus+i*10,random(105)+i*10,i*5,parseInt(addForce/2)*2);
 								pop();
 							}
 						}
@@ -2059,7 +1563,6 @@ function draw() {
 	}
 }
 
-
 class PointObj {
 	constructor() {
 		this.x = random(-300, 300);
@@ -2071,24 +1574,6 @@ class PointObj {
 		this.preX = [];
 		this.preY = [];
 		this.preZ = [];
-	}
-	drawSphere() {
-		for (var j = 0; j < trackCount; j++) {
-			push();
-			translate(this.preX[j], this.preY[j], this.preZ[j]);
-			ambientLight(120);
-			pointLight(255, 255, 255, 255, -600, -600, 300);
-			ambientMaterial(255, 255, 255, 255 / (j * 5));
-			sphere(3);
-			pop();
-		}
-		push();
-		translate(this.x, this.y, this.z);
-		ambientLight(120);
-		pointLight(255, 255, 255, 255, -600, -600, 300);
-		ambientMaterial(255, 255, 255, 255);
-		sphere(3);
-		pop();
 	}
 	update() {
 		this.x = this.x + this.xmove;
@@ -2120,13 +1605,10 @@ class PointObj {
 	}
 }
 
-
-
 function Polyhedoron(ox, oy, faceSide, xScl) {
 	var points0 = [];
 	var points1 = [];
 	var triShapes = [];
-	//var numFaces = int(random(2,10));
 	var numFaces =5;
 	var aStep = TWO_PI / numFaces;
 	for (var i = 0; i < numFaces; i++) {
@@ -2143,7 +1625,6 @@ function Polyhedoron(ox, oy, faceSide, xScl) {
 	}
 	for (var i = 0; i < numFaces; i++) {
 		triShapes.push(new TriShape(0, 0, points0[i].x, points0[i].y, points0[(i + 1) % numFaces].x, points0[(i + 1) % numFaces].y));
-		//  triShapes.push(new TriShape(points0[i].x, points0[i].y,points1[i].x, points1[i].y,points1[(i-1+numFaces)%numFaces].x, points1[(i-1+numFaces)%numFaces].y));
 		triShapes.push(new TriShape(points0[i].x, points0[i].y, points0[(i + 1) % numFaces].x, points0[(i + 1) % numFaces].y, points1[i].x, points1[i].y));
 	}
 	this.show = function() {
@@ -2156,7 +1637,6 @@ function Polyhedoron(ox, oy, faceSide, xScl) {
 		scale(xScl);
 		triShapes.forEach(function(ts) {
 			ts.show();
-			//  ts.run();
 		});
 		pop();
 	};
@@ -2164,11 +1644,7 @@ function Polyhedoron(ox, oy, faceSide, xScl) {
 
 function TriShape(p0x, p0y, p1x, p1y, p2x, p2y) {
 	this.show = function() {
-		//  colorMode(HSB);
-		//fill(hCol, sCol, bCol);
-		//fill(random(colors));
 		fill(colorAlpha(random(colors), arpha))
-		//	noFill();
 		noStroke();
 		stroke(random(colors));
 		randt = random(100);
@@ -2178,7 +1654,6 @@ function TriShape(p0x, p0y, p1x, p1y, p2x, p2y) {
 		if(randt>75 && oscObj==2){
 		  triangle(p0x+100, p0y+100, p1x+100, p1y+100, p2x+100, p2y+100);
 		}
-		//  colorMode(RGB);
 	}
 }
 
@@ -2195,27 +1670,33 @@ function mouseClicked() {
 }
 
 function keyTyped() {
+	if (key === 'd' || key === 'D') {
+    displayInfo = !displayInfo; // Toggle the display state
+  }
 	if (key === 's' || key === 'S') {
-		saveCanvas('myCanvas', 'jpg');
-		print("saving image");
-	}
-	return false;
+    saveCanvas('myCanvas', 'jpg');
+    print("saving image");
+  }
+
+  if (key === 'm' || key === 'M') {
+    micMode = !micMode;
+
+    if (micMode) {
+      mic.start();
+   //   micAmplitude.setInput(mic);
+      fft.setInput(mic);
+    } else {
+      mic.stop();
+      amplitude.setInput(sound);
+      fft.setInput(sound);
+    }
+  }
 }
 
 function colorAlpha(aColor, alpha) {
 	var c = color(aColor);
 	return color('rgba(' + [red(c), green(c), blue(c), alpha].join(',') + ')');
 }
-
-function hexToRgb(hex) {
-	hex = hex.replace('#', '');
-	var bigint = parseInt(hex, 16);
-	var r = (bigint >> 16) & 255;
-	var g = (bigint >> 8) & 255;
-	var b = bigint & 255;
-	return color(r, g, b);
-}
-
 
 class Particle {
 	constructor() {
@@ -2247,7 +1728,6 @@ class Particle {
 	}
 }
 
-
 function fractal(x, y, z, size) {
 	if (size < 10) {
 		return;
@@ -2255,13 +1735,10 @@ function fractal(x, y, z, size) {
 	push();
 	translate(x, y, z);
 	stroke(random(colors))
-	//noFill();
 	box(size);
 	let newsize = size * 0.2;
 	fractal(-newsize, -newsize, -newsize, newsize);
 	fractal(newsize, newsize, newsize, newsize);
-	// fractal(-newsize, newsize, newsize, newsize);
-	// fractal(newsize, -newsize, -newsize, newsize);
 	pop();
 }
 
@@ -2275,94 +1752,9 @@ function createDummySpectrum() {
 	return dummySpectrum;
 }
 
-function drawLine(l) {
-	if (l.type === 'solid') {
-		line(l.start.x, l.start.y, l.end.x, l.end.y);
-	} else {
-		for (var i = 0; i <= dottedLineDensity; i++) {
-			var x = lerp(l.start.x, l.end.x, i / dottedLineDensity);
-			var y = lerp(l.start.y, l.end.y, i / dottedLineDensity);
-			point(x, y);
-		}
-	}
-}
-
-function getElement(x, y) {
-	var lines = [];
-	var currentX = x;
-	var currentY = y;
-	var lineCountPossibilities = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7];
-	for (var i = 0; i < random(lineCountPossibilities); i++) {
-		var nextLine = getRandomLine(currentX, currentY);
-		currentX = nextLine.end.x;
-		currentY = nextLine.end.y;
-		lines.push(nextLine);
-	}
-	if (lines.length) {
-		return lines;
-	}
-	return [{
-		type: random(['solid', 'dotted']),
-		start: {
-			x: x,
-			y: y
-		},
-		end: {
-			x: x + lineLength,
-			y: y
-		}
-	}];
-}
-
-function getRandomLine(x, y) {
-	var angle = getRandomAngle();
-	return {
-		type: 'solid',
-		start: {
-			x: x,
-			y: y
-		},
-		end: {
-			x: x + lineLength * cos(angle),
-			y: y + lineLength * sin(angle)
-		}
-	};
-}
-
 function getRandomAngle() {
 	return floor(random(6, 361));
 }
-
-/**
-function polyfill() {
-	if (typeof Array.isArray === 'undefined') {
-		Array.isArray = function(obj) {
-			return Object.prototype.toString.call(obj) === '[object Array]';
-		}
-	}
-	if (typeof Object.assign != 'function') {
-		Object.assign = function(target, varArgs) { // .length of function is 2
-			'use strict';
-			if (target == null) { // TypeError if undefined or null
-				throw new TypeError('Cannot convert undefined or null to object');
-			}
-			var to = Object(target);
-			for (var index = 1; index < arguments.length; index++) {
-				var nextSource = arguments[index];
-				if (nextSource != null) { // Skip over if undefined or null
-					for (var nextKey in nextSource) {
-						// Avoid bugs when hasOwnProperty is shadowed
-						if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-							to[nextKey] = nextSource[nextKey];
-						}
-					}
-				}
-			}
-			return to;
-		};
-	}
-}
-*/
 `;
 
 const genRandomAddress = () => {
