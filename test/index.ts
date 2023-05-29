@@ -78,20 +78,18 @@ let whiteLineP2 = 250;
 let whiteLineP3 = 250;
 let whiteLineRandom =false;
 
-const A2S_RARITY = ["COMMON", "RARE", "SUPERRARE", "ULTRARARE","ONE_OF_ONE"]
-const A2S_RHYTHM = ["THICK", "LO_FI", "HI_FI", "GLITCH"]
-const A2S_LYRIC = ["LITTLE_BOY", "FUSSY_MAN", "OLD_MANN", "LITTLE_GIRL"]
-const A2S_OSCILLATOR = ["GLITCH", "LFO", "FREAK", "LYRA"]
-const A2S_ADSR = ["PIANO", "PAD", "PLUCK", "LEAD"]
+// const A2S_RARITY = ["COMMON", "RARE", "SUPERRARE", "ULTRARARE","ONE_OF_ONE"];
+const RHYTHMS = ["THICK", "LO_FI", "HI_FI", "GLITCH"];
+const LYRICS = ["LITTLE_BOY", "FUSSY_MAN", "OLD_MANN", "LITTLE_GIRL"];
+const OSCILLATORS = ["GLITCH", "LFO", "FREAK", "LYRA"];
+const ADSRS = ["PIANO", "PAD", "PLUCK", "LEAD"];
 
 /**
-const A2S_TOKEN_ID = 5;
 const A2S_RARITY = "COMMON";
 const A2S_RHYTHM = "GLITCH";
 const A2S_OSCILLATOR = "GLITCH";
 const A2S_ADSR = "LEAD";
 const A2S_LYRIC = "SHUFFLE";
-*/
 const A2S_CU1 = "dGVzdDQ=";
 const A2S_CU2 = "dGVzdDA=";
 const A2S_CU3 = "dGVzdDM3";
@@ -104,6 +102,7 @@ const A2S_CU9 = "dGVzdDk=";
 const A2S_CU10 = "dGVzdDMy";
 const A2S_CU11 = "dGVzdDY=";
 const A2S_CU12 = "dGVzdDM0";
+*/
 
 let type;
 let rhythm;
@@ -210,7 +209,17 @@ function getQueryParam(name) {
 }
 
 function preload() {
-	sound = loadSound('./AAAA.mp3');
+	type = A2S_RARITY;
+	rhythm = A2S_RHYTHM === "SHUFFLE" ? random(RHYTHMS) : A2S_RHYTHM;
+	lyric = A2S_LYRIC === "SHUFFLE" ? random(LYRICS) : A2S_LYRIC;
+	osc = A2S_OSCILLATOR === "SHUFFLE" ? random(OSCILLATORS) : A2S_OSCILLATOR;
+	adsr = A2S_ADSR === "SHUFFLE" ? random(ADSRS) : A2S_ADSR;
+
+	const c1 = rhythm === "THICK" ? "A" : rhythm === "LO_FI" ? "B" : rhythm === "HI_FI" ? "C" : "D";
+	const c2 = lyric === "LITTLE_GIRL" ? "A" : lyric === "OLD_MAN" ? "B" : lyric === "FUSSY_MAN" ? "C" : "D";
+	const c3 = osc === "LYRA" ? "A" : osc === "FREAK" ? "B" : osc === "LFO" ? "C" : "D";
+	const c4 = adsr === "PIANO" ? "A" : adsr === "PAD" ? "B" : adsr === "PLUCK" ? "C" : "D";
+	sound = loadSound(A2S_SOUND_BASE_URL + c1 + c2 + c3 + c4 + '.mp3');
 }
 
 
@@ -228,15 +237,9 @@ function setup() {
 
 	setAttributes("alpha", false);
 
-	type = random(A2S_RARITY);
-	rhythm = random(A2S_RHYTHM);
-	lyric = random(A2S_LYRIC);
-	osc = random(A2S_OSCILLATOR);
-	adsr = random(A2S_ADSR);
-
-	PARAM1 = int(random(10));  //A2S_PARAM1
-	PARAM2 = int(random(10));  //A2S_PARAM2
-	PARAM3 = int(random(10));  //A2S_PARAM3
+	PARAM1 = A2S_PARAM1;
+	PARAM2 = A2S_PARAM2;
+	PARAM3 = A2S_PARAM3;
 	textParam1 = decodeURIComponent(escape(window.atob(A2S_CU1)));
 	textParam2 = decodeURIComponent(escape(window.atob(A2S_CU2)));
 	textParam3 = decodeURIComponent(escape(window.atob(A2S_CU3)));

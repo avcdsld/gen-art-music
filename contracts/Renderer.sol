@@ -14,6 +14,7 @@ contract Renderer is IRenderer, Ownable {
     mapping(uint8 => string) public scripts;
     uint8 public scriptsLength;
     string public externalScript;
+    string public soundBaseUrl;
 
     constructor(address cutUpGeneratorAddress) {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
@@ -22,6 +23,7 @@ contract Renderer is IRenderer, Ownable {
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
             '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>'
         );
+        soundBaseUrl = "https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/";
     }
 
     function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {
@@ -38,6 +40,10 @@ contract Renderer is IRenderer, Ownable {
 
     function setExternalScript(string memory script) external onlyOwner {
         externalScript = script;
+    }
+
+    function setSoundBaseUrl(string memory url) external onlyOwner {
+        soundBaseUrl = url;
     }
 
     function dataURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory) {
@@ -57,6 +63,7 @@ contract Renderer is IRenderer, Ownable {
             embedVariable("A2S_PARAM1", getRandomParam(1)),
             embedVariable("A2S_PARAM2", getRandomParam(2)),
             embedVariable("A2S_PARAM3", getRandomParam(3)),
+            embedVariable("A2S_SOUND_BASE_URL", string.concat('"', soundBaseUrl, '"')),
             embedCutUp(),
             embedScripts(),
             "\n</script>\n",
