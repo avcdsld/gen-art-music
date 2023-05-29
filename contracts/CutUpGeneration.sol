@@ -24,7 +24,12 @@ contract CutUpGeneration is ICutUpGeneration {
     }
 
     function cutUp(bytes32 seed) external view returns (string memory) {
-        uint256 n = uint256(seed);
+        uint256 n;
+        if (seed.length == 0) {
+            n = uint256(blockhash(block.number - 1));
+        } else {
+            n = uint256(seed);
+        }
         uint256 index1 = ((n << 240) >> 240) % maxSupply;
         uint256 index2 = ((n << 224) >> 240) % maxSupply;
         uint256 index3 = ((n << 208) >> 240) % maxSupply;
