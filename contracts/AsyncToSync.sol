@@ -65,8 +65,14 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         _mint(to, tokenId);
     }
 
+    function mintExtraByOwner(address to) external onlyOwner {
+        uint256 tokenId = ++totalSupply;
+        seeds[tokenId] = uint8(uint256(blockhash(block.number - 1)) % (maxDrawsCount - 4)) + 4;
+        _mint(to, tokenId);
+    }
+
     function mint(address to) external payable {
-        require(totalSupply <= maxDrawsCount, "all minted");
+        require(tokenRemaining > 0, "all minted");
         require(onSale, "not on sale");
         require(msg.value == PRICE, "invalid value");
         uint256 tokenId = ++totalSupply;
@@ -77,7 +83,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     // Original code by Ping Chen. https://medium.com/taipei-ethereum-meetup/gas-efficient-card-drawing-in-solidity-af49bb135a08
     function drawSeed() private returns (uint8 seed) {
         uint160 seedFromOwner = uint160(_ownerOf(totalSupply - 1));
-        uint256 seedFromBlock = uint(blockhash(block.number - 1));
+        uint256 seedFromBlock = uint256(blockhash(block.number - 1));
         uint8 i = uint8((seedFromOwner + seedFromBlock) % tokenRemaining);
         seed = drawCache[i] == 0 ? i : drawCache[i];
         tokenRemaining--;
@@ -85,25 +91,23 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function musicParam(uint256 tokenId) public view returns (IAsyncToSync.MusicParam memory) {
-        if (tokenId == 1) {
+        uint8 seed = seeds[tokenId] % maxDrawsCount;
+        if (seed == 0) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Glitch, IAsyncToSync.Lyric.LittleBoy, IAsyncToSync.Oscillator.Glitch, IAsyncToSync.ADSR.Lead);
-        } else if (tokenId == 2) {
+        } else if (seed == 1) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.HiFi, IAsyncToSync.Lyric.FussyMan, IAsyncToSync.Oscillator.LFO, IAsyncToSync.ADSR.Pluck);
-        } else if (tokenId == 3) {
+        } else if (seed == 2) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.LoFi, IAsyncToSync.Lyric.OldMan, IAsyncToSync.Oscillator.Freak, IAsyncToSync.ADSR.Pad);
-        } else if (tokenId == 4) {
+        } else if (seed == 3) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.OneOfOne, IAsyncToSync.Rhythm.Thick, IAsyncToSync.Lyric.LittleGirl, IAsyncToSync.Oscillator.Lyra, IAsyncToSync.ADSR.Piano);
-        }
-
-        uint8 number = uint8(seeds[tokenId] % maxDrawsCount);
-        if (number < 10) {
+        } else if (seed < 10) {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.UltraRare, IAsyncToSync.Rhythm.Shuffle, IAsyncToSync.Lyric.Shuffle, IAsyncToSync.Oscillator.Shuffle, IAsyncToSync.ADSR.Shuffle);
-        } else if (number < 30) {
-            IAsyncToSync.Rhythm rhythm = number % 4 == 0 ? IAsyncToSync.Rhythm.Thick : number % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : number % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
+        } else if (seed < 30) {
+            IAsyncToSync.Rhythm rhythm = seed % 4 == 0 ? IAsyncToSync.Rhythm.Thick : seed % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : seed % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.SuperRare, rhythm, IAsyncToSync.Lyric.Shuffle, IAsyncToSync.Oscillator.Shuffle, IAsyncToSync.ADSR.Shuffle);
-        } else if (number < 54) {
-            IAsyncToSync.Rhythm rhythm = number % 4 == 0 ? IAsyncToSync.Rhythm.Thick : number % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : number % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
-            IAsyncToSync.ADSR adsr = number % 4 == 0 ? IAsyncToSync.ADSR.Piano : number % 4 == 1 ? IAsyncToSync.ADSR.Pad : number % 4 == 2 ? IAsyncToSync.ADSR.Pluck : IAsyncToSync.ADSR.Lead;
+        } else if (seed < 54) {
+            IAsyncToSync.Rhythm rhythm = seed % 4 == 0 ? IAsyncToSync.Rhythm.Thick : seed % 4 == 1 ? IAsyncToSync.Rhythm.LoFi : seed % 4 == 2 ? IAsyncToSync.Rhythm.HiFi : IAsyncToSync.Rhythm.Glitch;
+            IAsyncToSync.ADSR adsr = seed % 4 == 0 ? IAsyncToSync.ADSR.Piano : seed % 4 == 1 ? IAsyncToSync.ADSR.Pad : seed % 4 == 2 ? IAsyncToSync.ADSR.Pluck : IAsyncToSync.ADSR.Lead;
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.Rare, rhythm, IAsyncToSync.Lyric.Shuffle, IAsyncToSync.Oscillator.Shuffle, adsr);
         } else {
             return IAsyncToSync.MusicParam(IAsyncToSync.Rarity.Common, IAsyncToSync.Rhythm.Glitch, IAsyncToSync.Lyric.Shuffle, IAsyncToSync.Oscillator.Glitch, IAsyncToSync.ADSR.Lead);

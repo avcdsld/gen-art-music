@@ -2414,6 +2414,13 @@ describe("AsyncToSync", function () {
       await tx.wait();
     }
 
+    // Mint Extra by owner
+    const mintExtraByOwnerNum = 128;
+    for (let i = 1; i <= mintExtraByOwnerNum; i++) {
+      const tx = await asyncToSync.mintExtraByOwner(genRandomAddress());
+      await tx.wait();
+    }
+
     // Mint
     await (await asyncToSync.setOnSale(true)).wait();
     for (let i = 1 + mintByOwnerNum; i <= totalNum; i++) {
@@ -2430,9 +2437,9 @@ describe("AsyncToSync", function () {
     // Check each music params
     const rarities: { [key: string]: number } = {};
     const mintedSeeds: { [key: number]: boolean } = [];
-    for (let i = 1; i <= totalNum; i++) {
+    const totalSupply = (await asyncToSync.totalSupply()).toNumber();
+    for (let i = 1; i <= totalSupply; i++) {
       const seed = await asyncToSync.seeds(i);
-      expect(typeof mintedSeeds[seed]).to.equal("undefined");
       mintedSeeds[seed] = true;
 
       const { rhythm, oscillator, adsr, lyric, rarity } = await asyncToSync.musicParam(i);
@@ -2442,6 +2449,9 @@ describe("AsyncToSync", function () {
         rarities[rarity] = 0;
       }
       rarities[rarity]++;
+    }
+    for (let seed = 0; seed < totalNum; seed++) {
+      expect(mintedSeeds[seed]).to.be.true;
     }
 
     // For debugging

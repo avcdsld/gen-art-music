@@ -2391,7 +2391,7 @@ async function main() {
 	for (let i = 0; i < scripts!.length; i++) {
 		const gasLimit = Math.floor(Number((await renderer.estimateGas.setScript(i, scripts![i])).toNumber()) * 1.1)
 		const txSetScript = await renderer.setScript(i, scripts![i], { gasLimit });
-		console.log("txSetScript (" + i +"/" + scripts!.length + "): " + txSetScript.hash);
+		console.log("txSetScript (" + (i + 1) + "/" + scripts!.length + "): " + txSetScript.hash);
 		await txSetScript.wait();
 	}
 	await (await renderer.setScriptsLength(scripts!.length)).wait();
