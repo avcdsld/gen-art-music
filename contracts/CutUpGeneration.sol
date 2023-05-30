@@ -17,7 +17,7 @@ interface ITerraNullius {
 
 contract CutUpGeneration is ICutUpGeneration {
     ITerraNullius public terraNullius;
-    uint256 public maxSupply = 40; // 4000; // TODO: change
+    uint256 public maxSupply = 4000;
 
     constructor(address terraNulliusAddress) {
         terraNullius = ITerraNullius(terraNulliusAddress);
@@ -60,9 +60,9 @@ contract CutUpGeneration is ICutUpGeneration {
 
     function embedCutUp(string memory name, uint256 index) private view returns (string memory) {
         try terraNullius.claims(index) returns (address, string memory message, uint256) {
-            return string.concat("const ", name, ' = "', Base64.encode(bytes(message)), '";\n');
+            return string.concat("var ", name, ' = "', Base64.encode(bytes(message)), '";\n');
         } catch {
-            return string.concat("const ", name, ' = "";\n');
+            return string.concat("var ", name, ' = "";\n');
         }
     }
 }

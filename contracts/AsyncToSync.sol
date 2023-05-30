@@ -26,7 +26,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     string private _description;
     string private _baseExternalUrl;
 
-    constructor(address rendererAddress) ERC721("AsyncToSync", "A2S") {
+    constructor(address rendererAddress) ERC721("Async to Sync", "A2S") {
         renderer = IRenderer(rendererAddress);
     }
 
@@ -66,6 +66,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     }
 
     function mintExtraByOwner(address to) external onlyOwner {
+        require(totalSupply < 256, "all minted");
         uint256 tokenId = ++totalSupply;
         seeds[tokenId] = uint8(uint256(blockhash(block.number - 1)) % (maxDrawsCount - 4)) + 4;
         _mint(to, tokenId);
@@ -78,6 +79,17 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         uint256 tokenId = ++totalSupply;
         seeds[tokenId] = drawSeed();
         _safeMint(to, tokenId);
+    }
+
+    function batchMint(address to, uint256 count) external payable {
+        require(tokenRemaining >= count, "not enough left");
+        require(onSale, "not on sale");
+        require(msg.value == PRICE * count, "invalid value");
+        for (uint256 i = 0; i < count; i++) {
+            uint256 tokenId = ++totalSupply;
+            seeds[tokenId] = drawSeed();
+            _safeMint(to, tokenId);
+        }
     }
 
     // Original code by Ping Chen. https://medium.com/taipei-ethereum-meetup/gas-efficient-card-drawing-in-solidity-af49bb135a08
@@ -123,7 +135,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
         IAsyncToSync.MusicParam memory param = musicParam(tokenId);
         return
             string.concat(
-                '{"name":"AsyncToSync #',
+                '{"name":"Async to Sync #',
                 Strings.toString(tokenId),
                 '","description":"',
                 _description,

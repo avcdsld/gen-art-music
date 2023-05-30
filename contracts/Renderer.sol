@@ -13,17 +13,12 @@ contract Renderer is IRenderer, Ownable {
     ICutUpGeneration public cutUpGenerator;
     mapping(uint8 => string) public scripts;
     uint8 public scriptsLength;
+    string public scriptUrl;
     string public externalScript;
     string public soundBaseUrl;
 
     constructor(address cutUpGeneratorAddress) {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
-        externalScript = string.concat(
-            '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>',
-            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>',
-            '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>'
-        );
-        soundBaseUrl = "https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/";
     }
 
     function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {
@@ -36,6 +31,10 @@ contract Renderer is IRenderer, Ownable {
 
     function setScript(uint8 index, string memory script) external onlyOwner {
         scripts[index] = script;
+    }
+
+    function setScriptUrl(string memory url) external onlyOwner {
+        scriptUrl = url;
     }
 
     function setExternalScript(string memory script) external onlyOwner {
@@ -67,6 +66,7 @@ contract Renderer is IRenderer, Ownable {
             embedCutUp(),
             embedScripts(),
             "\n</script>\n",
+            '<script src="', scriptUrl, '"></script>',
             "</head>",
             "<body>",
             "<main></main>",
@@ -87,7 +87,7 @@ contract Renderer is IRenderer, Ownable {
     }
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {
-        return string.concat("const ", name, " = ", value, ";\n");
+        return string.concat("var ", name, " = ", value, ";\n");
     }
 
     function embedScripts() private view returns (string memory) {
