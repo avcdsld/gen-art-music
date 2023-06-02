@@ -4,5 +4,5 @@ pragma solidity ^0.8.17;
 import {IAsyncToSync} from "./IAsyncToSync.sol";
 
 interface IRenderer {
-    function dataURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory);
+    function tokenURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory);
 }

@@ -35,8 +35,8 @@ describe("AsyncToSync", function () {
       '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>'
     )).wait();
     await (await renderer.setSoundBaseUrl("https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/")).wait();
-    await (await asyncToSync.setBaseImageUrl("https://ara.mypinata.cloud/ipfs/QmX3KvbuV45UWTcv3Tab93VuuW51A8b7eKG9XEbXFfCYKj/#")).wait();
-    await (await asyncToSync.setBaseExternalUrl("https://twitter.com/KUMALEON_/status/1660963789582344192/#")).wait();
+    await (await renderer.setBaseImageUrl("https://ara.mypinata.cloud/ipfs/QmX3KvbuV45UWTcv3Tab93VuuW51A8b7eKG9XEbXFfCYKj/#")).wait();
+    await (await renderer.setBaseExternalUrl("https://twitter.com/KUMALEON_/status/1660963789582344192/#")).wait();
 
     // Check initial status
     const totalNum = 128;

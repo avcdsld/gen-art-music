@@ -21,10 +21,6 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
     mapping(uint8 => uint8) public drawCache;
 
     IRenderer public renderer;
-    string public baseImageUrl;
-    string public baseAnimationUrl;
-    string private _description;
-    string private _baseExternalUrl;
 
     constructor(address rendererAddress) ERC721("Async to Sync", "A2S") {
         renderer = IRenderer(rendererAddress);
@@ -36,22 +32,6 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
 
     function setRenderer(address rendererAddress) external onlyOwner {
         renderer = IRenderer(rendererAddress);
-    }
-
-    function setBaseImageUrl(string memory url) external onlyOwner {
-        baseImageUrl = url;
-    }
-
-    function setBaseAnimationUrl(string memory url) external onlyOwner {
-        baseAnimationUrl = url;
-    }
-
-    function setDescription(string memory desc) external onlyOwner {
-        _description = desc;
-    }
-
-    function setBaseExternalUrl(string memory url) external onlyOwner {
-        _baseExternalUrl = url;
     }
 
     function setRoyalty(address royaltyReceiver, uint96 royaltyFeeNumerator) external onlyOwner {
@@ -128,89 +108,7 @@ contract AsyncToSync is IAsyncToSync, ERC721, ERC2981, Ownable {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "not exists");
-        return string.concat("data:application/json;utf8,", getMetadata(tokenId));
-    }
-
-    function getMetadata(uint256 tokenId) private view returns (string memory) {
-        IAsyncToSync.MusicParam memory param = musicParam(tokenId);
-        return
-            string.concat(
-                '{"name":"Async to Sync #',
-                Strings.toString(tokenId),
-                '","description":"',
-                _description,
-                '","image":"',
-                baseImageUrl,
-                Strings.toString(tokenId),
-                '","animation_url":"',
-                getImage(tokenId, param),
-                '","external_url":"',
-                _baseExternalUrl,
-                Strings.toString(tokenId),
-                '","attributes":[{"trait_type":"Rarity","value":"',
-                getRarity(param.rarity),
-                '"},{"trait_type":"Rhythm","value":"',
-                getRhythmName(param.rhythm),
-                '"},{"trait_type":"Oscillator","value":"',
-                getOscillatorName(param.oscillator),
-                '"},{"trait_type":"ADSR","value":"',
-                getADSRName(param.adsr),
-                '"},{"trait_type":"Lyric","value":"',
-                getLyricName(param.lyric),
-                '"}]}'
-            );
-    }
-
-    function getImage(uint256 tokenId, MusicParam memory param) private view returns (string memory) {
-        if (bytes(baseAnimationUrl).length > 0) {
-            return string.concat(baseAnimationUrl, Strings.toString(tokenId));
-        }
-        return renderer.dataURI(tokenId, param);
-    }
-
-    function getRarity(IAsyncToSync.Rarity val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Rarity.Common) return "Common";
-        if (val == IAsyncToSync.Rarity.Rare) return "Rare";
-        if (val == IAsyncToSync.Rarity.SuperRare) return "Super Rare";
-        if (val == IAsyncToSync.Rarity.UltraRare) return "Ultra Rare";
-        if (val == IAsyncToSync.Rarity.OneOfOne) return "1 of 1";
-        return "";
-    }
-
-    function getRhythmName(IAsyncToSync.Rhythm val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Rhythm.Thick) return "Thick";
-        if (val == IAsyncToSync.Rhythm.LoFi) return "Lo-Fi";
-        if (val == IAsyncToSync.Rhythm.HiFi) return "Hi-Fi";
-        if (val == IAsyncToSync.Rhythm.Glitch) return "Glitch";
-        if (val == IAsyncToSync.Rhythm.Shuffle) return "(Shuffle)";
-        return "";
-    }
-
-    function getLyricName(IAsyncToSync.Lyric val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Lyric.LittleGirl) return "Little girl";
-        if (val == IAsyncToSync.Lyric.OldMan) return "Old man";
-        if (val == IAsyncToSync.Lyric.FussyMan) return "Fussy man";
-        if (val == IAsyncToSync.Lyric.LittleBoy) return "Little boy";
-        if (val == IAsyncToSync.Lyric.Shuffle) return "(Shuffle)";
-        return "";
-    }
-
-    function getOscillatorName(IAsyncToSync.Oscillator val) private pure returns (string memory) {
-        if (val == IAsyncToSync.Oscillator.Lyra) return "Lyra";
-        if (val == IAsyncToSync.Oscillator.Freak) return "Freak";
-        if (val == IAsyncToSync.Oscillator.LFO) return "LFO";
-        if (val == IAsyncToSync.Oscillator.Glitch) return "Glitch";
-        if (val == IAsyncToSync.Oscillator.Shuffle) return "(Shuffle)";
-        return "";
-    }
-
-    function getADSRName(IAsyncToSync.ADSR val) private pure returns (string memory) {
-        if (val == IAsyncToSync.ADSR.Piano) return "Piano";
-        if (val == IAsyncToSync.ADSR.Pad) return "Pad";
-        if (val == IAsyncToSync.ADSR.Pluck) return "Pluck";
-        if (val == IAsyncToSync.ADSR.Lead) return "Lead";
-        if (val == IAsyncToSync.ADSR.Shuffle) return "(Shuffle)";
-        return "";
+        return renderer.tokenURI(tokenId, musicParam(tokenId));
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
