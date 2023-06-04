@@ -1,10 +1,17 @@
-## Mumbai
+## Goerli
 
 ```
-TerraNullius deployed to: 0xb5b3beF85A295DaCDDc6C3796f75E3816B4e320a
-CutUpGeneration deployed to: 0x5B4B0e3D28F70E90a1Aa7C7b433d631d2a908e2E
-Renderer deployed to: 0x6d2FeFA0948BC1a3D7e437CEedB783d59e18C185
-AsyncToSync deployed to: 0xbC19d58238cd61Fb19e7dBDa1C5ca5b97F27EFFd
+TerraNullius deployed to: 0x668575bF5263c1139DF9F58a62A00f555CBC2FFA
+CutUpGeneration deployed to: 0x6c5aCE38487B60E1DB82328a45F216D48539C4Ed
+Renderer deployed to: 0x9d96fCCa46e3cE8AFa83efa90fd4770b3330260c
+AsyncToSync deployed to: 0xA5884b59e3F76564100a4d946c2f2426484168b5
+```
+
+```
+TerraNullius deployed to: 0xCd0b105f30da96d7930699BEFb526300c3C8be69
+CutUpGeneration deployed to: 0x72265665d02E668e35879437e78F91fE70DeEA01
+Renderer deployed to: 0x1978F72d48E3F4630EaE39d065EC2c7453997Aff
+AsyncToSync deployed to: 0xEA275E410237c056a7F969E13bCF6f44fCbaD40c
 ```
 
 ---

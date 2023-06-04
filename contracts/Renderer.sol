@@ -15,10 +15,6 @@ contract Renderer is IRenderer, Ownable {
     string public baseAnimationUrl;
     string public description;
     string public baseExternalUrl;
-    mapping(uint8 => string) public scripts;
-    uint8 public scriptsLength;
-    string public scriptUrl;
-    string public externalScript;
     string public soundBaseUrl;
 
     constructor(address cutUpGeneratorAddress) {
@@ -45,22 +41,6 @@ contract Renderer is IRenderer, Ownable {
         baseExternalUrl = url;
     }
 
-    function setScriptsLength(uint8 length) external onlyOwner {
-        scriptsLength = length;
-    }
-
-    function setScript(uint8 index, string memory script) external onlyOwner {
-        scripts[index] = script;
-    }
-
-    function setScriptUrl(string memory url) external onlyOwner {
-        scriptUrl = url;
-    }
-
-    function setExternalScript(string memory script) external onlyOwner {
-        externalScript = script;
-    }
-
     function setSoundBaseUrl(string memory url) external onlyOwner {
         soundBaseUrl = url;
     }
@@ -81,48 +61,36 @@ contract Renderer is IRenderer, Ownable {
     }
 
     function getAnimationURL(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam, ICutUpGeneration.Messages memory messages) private view returns (string memory) {
-        if (bytes(baseAnimationUrl).length > 0) {
-            return string.concat(baseAnimationUrl, Strings.toString(tokenId));
-        }
-        string memory html = string.concat(
-            "<html>",
-            "<head>",
-            '<meta name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0" />',
-            "<style>body { padding: 0; margin: 0; }</style>",
-            externalScript,
-            "\n<script>\n",
-            embedVariable("A2S_TOKEN_ID", Strings.toString(tokenId)),
-            embedVariable("A2S_RARITY", getRarity(musicParam.rarity)),
-            embedVariable("A2S_RHYTHM", getRhythm(musicParam.rhythm)),
-            embedVariable("A2S_OSCILLATOR", getOscillator(musicParam.oscillator)),
-            embedVariable("A2S_ADSR", getADSR(musicParam.adsr)),
-            embedVariable("A2S_LYRIC", getLyric(musicParam.lyric)),
-            embedVariable("A2S_PARAM1", getRandomParam(1)),
-            embedVariable("A2S_PARAM2", getRandomParam(2)),
-            embedVariable("A2S_PARAM3", getRandomParam(3)),
-            embedVariable("A2S_CU1", string.concat('"', messages.message1, '"')),
-            embedVariable("A2S_CU2", string.concat('"', messages.message2, '"')),
-            embedVariable("A2S_CU3", string.concat('"', messages.message3, '"')),
-            embedVariable("A2S_CU4", string.concat('"', messages.message4, '"')),
-            embedVariable("A2S_CU5", string.concat('"', messages.message5, '"')),
-            embedVariable("A2S_CU6", string.concat('"', messages.message6, '"')),
-            embedVariable("A2S_CU7", string.concat('"', messages.message7, '"')),
-            embedVariable("A2S_CU8", string.concat('"', messages.message8, '"')),
-            embedVariable("A2S_CU9", string.concat('"', messages.message9, '"')),
-            embedVariable("A2S_CU10", string.concat('"', messages.message10, '"')),
-            embedVariable("A2S_CU11", string.concat('"', messages.message11, '"')),
-            embedVariable("A2S_CU12", string.concat('"', messages.message12, '"')),
-            embedVariable("A2S_SOUND_BASE_URL", string.concat('"', soundBaseUrl, '"')),
-            embedScripts(),
-            "\n</script>\n",
-            '<script src="', scriptUrl, '"></script>',
-            "</head>",
-            "<body>",
-            "<main></main>",
-            "</body>",
-            "</html>"
+        string memory params = string.concat(
+            "{",
+            '"A2S_TOKEN_ID":', Strings.toString(tokenId), ",",
+            '"A2S_RARITY":', getRarity(musicParam.rarity), ",",
+            '"A2S_RHYTHM":', getRhythm(musicParam.rhythm), ",",
+            '"A2S_OSCILLATOR":', getOscillator(musicParam.oscillator), ",",
+            '"A2S_ADSR":', getADSR(musicParam.adsr), ",",
+            '"A2S_LYRIC":', getLyric(musicParam.lyric), ",",
+            '"A2S_PARAM1":', getRandomParam(1), ",",
+            '"A2S_PARAM2":', getRandomParam(2), ",",
+            '"A2S_PARAM3":', getRandomParam(3), ",",
+            '"A2S_CU1":"', messages.message1, '",',
+            '"A2S_CU2":"', messages.message2, '",',
+            '"A2S_CU3":"', messages.message3, '",',
+            '"A2S_CU4":"', messages.message4, '",',
+            '"A2S_CU5":"', messages.message5, '",',
+            '"A2S_CU6":"', messages.message6, '",',
+            '"A2S_CU7":"', messages.message7, '",',
+            '"A2S_CU8":"', messages.message8, '",',
+            '"A2S_CU9":"', messages.message9, '",',
+            '"A2S_CU10":"', messages.message10, '",',
+            '"A2S_CU11":"', messages.message11, '",',
+            '"A2S_CU12":"', messages.message12, '",',
+            '"A2S_SOUND_BASE_URL":"', soundBaseUrl, '"',
+            "}"
         );
-        return string.concat("data:text/html;charset=UTF-8;base64,", Base64.encode(bytes(html)));
+        // return string.concat(baseAnimationUrl, "?params=", Base64.encode(bytes(params)));
+        string memory url = string.concat(baseAnimationUrl, "?params=", Base64.encode(bytes(params)));
+        string memory data = string.concat('<html><meta http-equiv="Refresh" content="0;url=', url, '"></html>');
+        return string.concat("data:text/html;charset=UTF-8;base64,", Base64.encode(bytes(data)));
     }
 
     function getAttributes(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam, ICutUpGeneration.Messages memory messages) private view returns (string memory) {
@@ -165,14 +133,6 @@ contract Renderer is IRenderer, Ownable {
 
     function embedVariable(string memory name, string memory value) private pure returns (string memory) {
         return string.concat("var ", name, " = ", value, ";\n");
-    }
-
-    function embedScripts() private view returns (string memory) {
-        string memory res = "";
-        for (uint8 i = 0; i < scriptsLength; i++) {
-            res = string.concat(res, scripts[i]);
-        }
-        return res;
     }
 
     function getRarity(IAsyncToSync.Rarity val) private pure returns (string memory) {

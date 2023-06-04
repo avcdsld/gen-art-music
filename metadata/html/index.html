@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0" />
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script type="text/javascript" src="p5.min.js"></script>
+    <script type="text/javascript" src="p5.sound.min.js"></script>
+    <script type="text/javascript">
+        try {
+            const paramsBase64 = new URL(window.location.href).searchParams.get("params") || "";
+            const params = JSON.parse(decodeURIComponent(escape(atob(paramsBase64.replace(/\ /g, "+")))));
+            console.log({ params });
+            var {
+                A2S_TOKEN_ID,
+                A2S_RARITY,
+                A2S_RHYTHM,
+                A2S_OSCILLATOR,
+                A2S_ADSR,
+                A2S_LYRIC,
+                A2S_PARAM1,
+                A2S_PARAM2,
+                A2S_PARAM3,
+                A2S_CU1,
+                A2S_CU2,
+                A2S_CU3,
+                A2S_CU4,
+                A2S_CU5,
+                A2S_CU6,
+                A2S_CU7,
+                A2S_CU8,
+                A2S_CU9,
+                A2S_CU10,
+                A2S_CU11,
+                A2S_CU12,
+                A2S_SOUND_BASE_URL
+            } = params;
+        } catch (e) {
+            console.log(e);
+            var A2S_TOKEN_ID = 0;
+            var A2S_RARITY = "COMMON";
+            var A2S_RHYTHM = "GLITCH";
+            var A2S_OSCILLATOR = "GLITCH";
+            var A2S_ADSR = "LEAD";
+            var A2S_LYRIC = "SHUFFLE";
+            var A2S_PARAM1 = 0;
+            var A2S_PARAM2 = 0;
+            var A2S_PARAM3 = 0;
+            var A2S_CU1 = "";
+            var A2S_CU2 = "";
+            var A2S_CU3 = "";
+            var A2S_CU4 = "";
+            var A2S_CU5 = "";
+            var A2S_CU6 = "";
+            var A2S_CU7 = "";
+            var A2S_CU8 = "";
+            var A2S_CU9 = "";
+            var A2S_CU10 = "";
+            var A2S_CU11 = "";
+            var A2S_CU12 = "";
+            var A2S_SOUND_BASE_URL = "https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/";
+        }
+    </script>
+</head>
+
+<body>
+    <script type="text/javascript" src="sketch.js"></script>
+</body>
+
+</html>
