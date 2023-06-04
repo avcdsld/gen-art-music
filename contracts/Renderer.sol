@@ -12,7 +12,9 @@ import {ICutUpGeneration} from "./interfaces/ICutUpGeneration.sol";
 contract Renderer is IRenderer, Ownable {
     ICutUpGeneration public cutUpGenerator;
     string public baseImageUrl;
+    string public imageUrlSuffix;
     string public baseAnimationUrl;
+    string public animationUrlSuffix;
     string public description;
     string public baseExternalUrl;
     mapping(uint8 => string) public scripts;
@@ -20,21 +22,25 @@ contract Renderer is IRenderer, Ownable {
     string public scriptUrl;
     string public externalScript;
     string public soundBaseUrl;
+    bool public useOriginalAnimationUrl;
 
     constructor(address cutUpGeneratorAddress) {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
+        useOriginalAnimationUrl = true;
     }
 
     function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
     }
 
-    function setBaseImageUrl(string memory url) external onlyOwner {
-        baseImageUrl = url;
+    function setImageUrl(string memory baseUrl, string memory suffix) external onlyOwner {
+        baseImageUrl = baseUrl;
+        imageUrlSuffix = suffix;
     }
 
-    function setBaseAnimationUrl(string memory url) external onlyOwner {
-        baseAnimationUrl = url;
+    function setAnimationUrl(string memory baseUrl, string memory suffix) external onlyOwner {
+        baseAnimationUrl = baseUrl;
+        animationUrlSuffix = suffix;
     }
 
     function setDescription(string memory desc) external onlyOwner {
@@ -65,14 +71,21 @@ contract Renderer is IRenderer, Ownable {
         soundBaseUrl = url;
     }
 
+    function setUseOriginalAnimationUrl(bool useOrNot) external onlyOwner {
+        useOriginalAnimationUrl = useOrNot;
+    }
+
     function tokenURI(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam) external view returns (string memory) {
         ICutUpGeneration.Messages memory messages = cutUpGenerator.cutUp(blockhash(block.number - 1));
+        string memory originalAnimationUrl = getOriginalAnimationURL(tokenId, musicParam, messages);
+        string memory animationUrl = useOriginalAnimationUrl ? originalAnimationUrl : getAnimationURL(tokenId);
         string memory json = string.concat(
             '{',
             '"name":"Async to Sync #', Strings.toString(tokenId), '",',
             '"description":"', description, '",',
-            '"image":"', baseImageUrl, Strings.toString(tokenId), '",',
-            '"animation_url":"', getAnimationURL(tokenId, musicParam, messages), '",',
+            '"image":"', baseImageUrl, Strings.toString(tokenId), imageUrlSuffix, '",',
+            '"original_animation_url":"', originalAnimationUrl, '",',
+            '"animation_url":"', animationUrl, '",',
             '"external_url":"', baseExternalUrl, Strings.toString(tokenId), '",',
             '"attributes":', getAttributes(tokenId, musicParam, messages),
             '}'
@@ -80,10 +93,11 @@ contract Renderer is IRenderer, Ownable {
         return string.concat("data:application/json;utf8,", json);
     }
 
-    function getAnimationURL(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam, ICutUpGeneration.Messages memory messages) private view returns (string memory) {
-        if (bytes(baseAnimationUrl).length > 0) {
-            return string.concat(baseAnimationUrl, Strings.toString(tokenId));
-        }
+    function getAnimationURL(uint256 tokenId) private view returns (string memory) {
+        return string.concat(baseAnimationUrl, Strings.toString(tokenId), animationUrlSuffix);
+    }
+
+    function getOriginalAnimationURL(uint256 tokenId, IAsyncToSync.MusicParam memory musicParam, ICutUpGeneration.Messages memory messages) private view returns (string memory) {
         string memory html = string.concat(
             "<html>",
             "<head>",

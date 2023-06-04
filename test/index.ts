@@ -28,15 +28,16 @@ describe("AsyncToSync", function () {
     }
 
     // Setup renderer (p5.js url and image url etc.)
-    await (await renderer.setScriptUrl("https://ara.mypinata.cloud/ipfs/QmPv4ty5FvtQM5FcgvDyfEmGNDsNCYcRUXNEVpVj2ph4vw")).wait();
+    await (await renderer.setAnimationUrl("https://cryptorecord-storage-dev.kumaleon.com/" + asyncToSync.address + "/", ".html")).wait();
+    await (await renderer.setScriptUrl("https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/script.js")).wait();
     await (await renderer.setExternalScript(
-      '<script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>' +
-      '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>' +
-      '<script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.min.js"></script>'
+      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/audioworklet-polyfill.js"></script>' +
+      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/p5.min.js"></script>' +
+      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/p5.sound.min.js"></script>'
     )).wait();
     await (await renderer.setSoundBaseUrl("https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/")).wait();
-    await (await renderer.setBaseImageUrl("https://ara.mypinata.cloud/ipfs/QmX3KvbuV45UWTcv3Tab93VuuW51A8b7eKG9XEbXFfCYKj/#")).wait();
-    await (await renderer.setBaseExternalUrl("https://twitter.com/KUMALEON_/status/1660963789582344192/#")).wait();
+    await (await renderer.setImageUrl("https://ara.mypinata.cloud/ipfs/QmX3KvbuV45UWTcv3Tab93VuuW51A8b7eKG9XEbXFfCYKj/#", "")).wait();
+    await (await renderer.setBaseExternalUrl("https://cryptorecord.kumaleon.com/#")).wait();
 
     // Check initial status
     const totalNum = 128;
