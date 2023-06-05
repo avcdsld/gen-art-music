@@ -80,6 +80,7 @@ const OSCILLATORS = ["GLITCH", "LFO", "FREAK", "LYRA"];
 const ADSRS = ["PIANO", "PAD", "PLUCK", "LEAD"];
 
 /**
+const A2S_TOKEN_ID = 5;
 const A2S_RARITY = "COMMON";
 const A2S_RHYTHM = "GLITCH";
 const A2S_OSCILLATOR = "GLITCH";
@@ -839,11 +840,11 @@ function draw() {
 
     if (displayInfo) {
         if (micMode) {
-            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand + "    Rarity:" + type);
+            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand);
             infoP2.html("MicMode Force:" + addForce);
             infoP3.html(theTEXT);
         } else {
-            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand + "    Rarity:" + type);
+            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand);
             infoP2.html("Level:" + level);
             infoP3.html(theTEXT);
         }
