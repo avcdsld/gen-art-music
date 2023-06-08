@@ -840,12 +840,12 @@ function draw() {
 
     if (displayInfo) {
         if (micMode) {
-            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand);
-            infoP2.html("MicMode Force:" + addForce);
+            infoP.html("mainObj:" + mainObj + "    Color:" + type + "-" + colrand);
+            infoP2.html('count:' + count + "   MicMode Force:" + parseFloat(addForce.toFixed(3)));
             infoP3.html(theTEXT);
         } else {
-            infoP.html('count:' + count + "   mainObject:" + mainObj + "    Color:" + type + "-" + colrand);
-            infoP2.html("Level:" + level);
+            infoP.html("mainObj:" + mainObj + "    Color:" + type + "-" + colrand);
+            infoP2.html('count:' + count + "   Level:" + parseFloat(level.toFixed(5)));
             infoP3.html(theTEXT);
         }
     } else {
@@ -1656,7 +1656,8 @@ function TriShape(p0x, p0y, p1x, p1y, p2x, p2y) {
     }
 }
 
-function mouseClicked() {
+// 共通の処理を行う関数
+function handleEvent() {
     if (sound.isPlaying() == false) {
         count = 0;
         offcount = 0;
@@ -1665,6 +1666,20 @@ function mouseClicked() {
         sound.stop();
         offcount = 0;
         count = 0;
+    }
+}
+
+// タッチイベントがサポートされているかどうかをチェック
+if ('ontouchstart' in window) {
+    // タッチイベントがサポートされている場合、touchStarted関数を設定
+    function touchStarted() {
+        handleEvent();
+        return false; // 追加のブラウザの動作を防ぐ
+    }
+} else {
+    // タッチイベントがサポートされていない場合、mouseClicked関数を設定
+    function mouseClicked() {
+        handleEvent();
     }
 }
 

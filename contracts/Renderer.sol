@@ -26,7 +26,6 @@ contract Renderer is IRenderer, Ownable {
 
     constructor(address cutUpGeneratorAddress) {
         cutUpGenerator = ICutUpGeneration(cutUpGeneratorAddress);
-        useOriginalAnimationUrl = true;
     }
 
     function setCutUpGeneration(address cutUpGeneratorAddress) external onlyOwner {

@@ -1,10 +1,26 @@
-## Mumbai
+## Ethereum
+
+```
+TerraNullius: 0x6e38A457C722C6011B2dfa06d49240e797844d66
+CutUpGeneration deployed to: 0xc15c498fef73362208cf685045F5a7b0FdFa9b4B
+```
+
+## Goerli
 
 ```
 TerraNullius deployed to: 0xA46712c46218e4EE9349985930641816a4E9F2EC
 CutUpGeneration deployed to: 0xd1eD780c50736AA0a2bBc91DBa77f483F002e01F
 Renderer deployed to: 0x7580D4969Cb6c3E9650dB8Da66dFd1960eacbae5
 AsyncToSync deployed to: 0x06699B7096424a0Dd881847c1208216e065Db2c3
+```
+
+## Mumbai
+
+```
+TerraNullius deployed to: 0xBc824713819304E02cEa2aB8A5289C84Ff58d172
+CutUpGeneration deployed to: 0x4A92F9008dD5c79baD7BE15603DDA4a639aa9001
+Renderer deployed to: 0x3118B6e2371CC786A6e88226f2786b690409a14d
+AsyncToSync deployed to: 0xeF3d3ab68BAa8feaCcB413659e950e7402E45993
 ```
 
 ---

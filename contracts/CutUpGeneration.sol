@@ -17,7 +17,7 @@ interface ITerraNullius {
 
 contract CutUpGeneration is ICutUpGeneration {
     ITerraNullius public terraNullius;
-    uint256 public maxSupply = 4000;
+    uint256 public maxSupply = 4621;
 
     constructor(address terraNulliusAddress) {
         terraNullius = ITerraNullius(terraNulliusAddress);
@@ -25,7 +25,7 @@ contract CutUpGeneration is ICutUpGeneration {
 
     function cutUp(bytes32 seed) external view returns (ICutUpGeneration.Messages memory) {
         uint256 n;
-        if (seed.length == 0) {
+        if (seed == 0x0) {
             n = uint256(blockhash(block.number - 1));
         } else {
             n = uint256(seed);
