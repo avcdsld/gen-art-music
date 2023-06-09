@@ -3,6 +3,10 @@
 ```
 TerraNullius: 0x6e38A457C722C6011B2dfa06d49240e797844d66
 CutUpGeneration deployed to: 0xc15c498fef73362208cf685045F5a7b0FdFa9b4B
+Renderer deployed to: 0xb25C7e64Eb948EBCF5A6e610014F0Af095b1AAc6
+AsyncToSync deployed to: 0xC048bE32eaeC60BD03C1f28Df9836e958e4f5Ef3
+
+npx hardhat verify 0xC048bE32eaeC60BD03C1f28Df9836e958e4f5Ef3 0xb25C7e64Eb948EBCF5A6e610014F0Af095b1AAc6 --network mainnet
 ```
 
 ## Goerli

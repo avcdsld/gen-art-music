@@ -73,6 +73,13 @@ let whiteLineP2 = 250;
 let whiteLineP3 = 250;
 let whiteLineRandom = false;
 
+// cut up strings
+let cutUpStringMode = 0;
+let cutUpSourceMode1 = "Bitcoin peer to peer electronic cash system digital signature double spending"
+let cutUpSourceMode2;
+let cutUpStrings;
+let font;
+
 // const A2S_RARITY = ["COMMON", "RARE", "SUPERRARE", "ULTRARARE","ONE_OF_ONE"];
 const RHYTHMS = ["THICK", "LO_FI", "HI_FI", "GLITCH"];
 const LYRICS = ["LITTLE_BOY", "FUSSY_MAN", "OLD_MANN", "LITTLE_GIRL"];
@@ -216,6 +223,8 @@ function preload() {
     const c3 = osc === "LYRA" ? "A" : osc === "FREAK" ? "B" : osc === "LFO" ? "C" : "D";
     const c4 = adsr === "PIANO" ? "A" : adsr === "PAD" ? "B" : adsr === "PLUCK" ? "C" : "D";
     sound = loadSound(A2S_SOUND_BASE_URL + c1 + c2 + c3 + c4 + '.mp3');
+
+    font = loadFont('/scripts/NovaCut-Regular.ttf');
 }
 
 
@@ -673,6 +682,11 @@ function setup() {
     // クエリパラメータを取得
     //  const cap = getQueryParam("cap");
     //  console.log("cap:", cap);
+
+    // cut up strings
+    textFont(font);
+    textSize(44);
+    textAlign(CENTER, CENTER);
 }
 
 function drawDotPattern() {
@@ -1560,6 +1574,16 @@ function draw() {
     if (sound.isPlaying() == true) {
         count++;
     }
+
+    // cut up strings
+    if (cutUpStringMode > 0) {
+        push();
+        for (let i = 0; i < cutUpStrings.length && i < 12; i++) {
+            fill(random(255));
+            text(cutUpStrings[i], random(width), random(height));
+        }
+        pop();
+    }
 }
 
 class PointObj {
@@ -1703,6 +1727,19 @@ function keyTyped() {
             mic.stop();
             amplitude.setInput(sound);
             fft.setInput(sound);
+        }
+    }
+
+    // cut up strings
+    if (key === 'c' || key === 'C') {
+        if (cutUpStringMode === 0) {
+            cutUpStrings = shuffle(cutUpSourceMode1.split(" "));
+            cutUpStringMode = 1;
+        } else if (cutUpStringMode === 1) {
+            cutUpStrings = shuffle(textParams);
+            cutUpStringMode = 2;
+        } else {
+            cutUpStringMode = 0;
         }
     }
 }
