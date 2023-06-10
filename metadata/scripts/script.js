@@ -75,7 +75,7 @@ let whiteLineRandom = false;
 
 // cut up strings
 let cutUpStringMode = 0;
-let cutUpSourceMode1 = "Bitcoin peer to peer electronic cash system digital signature double spending"
+let cutUpSourceMode1 = "Bitcoin peer to peer electronic cash system Abstract. A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through afinancial institution. Digital signatures provide part of the solution, but the main benefits are lost if a trusted third party is still required to prevent double-spending. We propose a solution to the double-spending problem using a peer-to-peer network.The network timestamps transactions by hashing them into an ongoing chain ofhash-based proof-of-work, forming a record that cannot be changed without redoingthe proof-of-work. The longest chain not only serves as proof of the sequence ofevents witnessed, but proof that it came from the largest pool of CPU power. Aslong as a majority of CPU power is controlled by nodes that are not cooperating toattack the network, they'll generate the longest chain and outpace attackers. Thenetwork itself requires minimal structure. Messages are broadcast on a best effortbasis, and nodes can leave and rejoin the network at will, accepting the longest proof-of-work chain as proof of what happened while they were gone."
 let cutUpSourceMode2;
 let cutUpStrings;
 let font;
@@ -1578,7 +1578,7 @@ function draw() {
     // cut up strings
     if (cutUpStringMode > 0) {
         push();
-        for (let i = 0; i < cutUpStrings.length && i < 12; i++) {
+        for (let i = 0; i < cutUpStrings.length && i < 6; i++) {
             fill(random(255));
             text(cutUpStrings[i], random(width), random(height));
         }
