@@ -31,13 +31,13 @@ AsyncToSync deployed to: 0xeF3d3ab68BAa8feaCcB413659e950e7402E45993
 
 ## Setting
 
-- setDescription: `[d] key : Toggle display of debug mode message\\n\\n[m] key : Switch to MIC input mode\\n\\n[s] key : Get Screenshot\\n\\n[←↑→↓] : Move the Camera\\n\\n[r]key : Apply automatic Camera movement mode\\n\\n[c] key : Show texts from Bitcoin white paper and Terra Nullius`
-- setAnimationUrl: `https://cryptorecord-storage-dev.kumaleon.com/{contract address}/` / `.html`
+- setDescription: `Async to Sync is an art series inspired by the relationship between generative art and generative music. The music and visuals are asynchronously and synchronously triggered by the smart contract in a generative way to explore new possibilities while taking advantage of their different unique characteristics. The NFT is composed of four layers, each of which has four sound elements, each lasting 3 minutes 20 seconds and they all come together to be a single piece of art.\\n\\n[d] key : Toggle display of debug mode message\\n\\n[m] key : Switch to MIC input mode\\n\\n[s] key : Get Screenshot\\n\\n[←↑→↓] : Move the Camera\\n\\n[r]key : Apply automatic Camera movement mode\\n\\n[c] key : Show texts from Bitcoin white paper and Terra Nullius`
+- setAnimationUrl: `https://cryptorecord-storage.kumaleon.com/{contract address}/` / `.html`
 - setScriptUrl: `/scripts/script.js`
 - setExternalScript: `<script src="/scripts/audioworklet-polyfill.js"></script><script src="/scripts/p5.min.js"></script><script src="/scripts/p5.sound.min.js"></script>`
-- setSoundBaseUrl: `https://cryptorecord-storage-dev.kumaleon.com/sounds/`
-- setImageUrl: `https://cryptorecord-storage-dev.kumaleon.com/{contract address}/` / `.png`
-- setBaseExternalUrl: `https://cryptorecord-storage-dev.kumaleon.com/{contract address}/animation_url/`
+- setSoundBaseUrl: `https://cryptorecord-storage.kumaleon.com/sounds/`
+- setImageUrl: `https://cryptorecord-storage.kumaleon.com/{contract address}/` / `.png`
+- setBaseExternalUrl: `https://cryptorecord-storage.kumaleon.com/{contract address}/animation_url/`
 
 ---
 

@@ -75,8 +75,7 @@ let whiteLineRandom = false;
 
 // cut up strings
 let cutUpStringMode = 0;
-let cutUpSourceMode1 = "Bitcoin peer to peer electronic cash system Abstract. A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through afinancial institution. Digital signatures provide part of the solution, but the main benefits are lost if a trusted third party is still required to prevent double-spending. We propose a solution to the double-spending problem using a peer-to-peer network.The network timestamps transactions by hashing them into an ongoing chain ofhash-based proof-of-work, forming a record that cannot be changed without redoingthe proof-of-work. The longest chain not only serves as proof of the sequence ofevents witnessed, but proof that it came from the largest pool of CPU power. Aslong as a majority of CPU power is controlled by nodes that are not cooperating toattack the network, they'll generate the longest chain and outpace attackers. Thenetwork itself requires minimal structure. Messages are broadcast on a best effortbasis, and nodes can leave and rejoin the network at will, accepting the longest proof-of-work chain as proof of what happened while they were gone."
-let cutUpSourceMode2;
+let cutUpSource = "Bitcoin peer to peer electronic cash system Abstract. A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through afinancial institution. Digital signatures provide part of the solution, but the main benefits are lost if a trusted third party is still required to prevent double-spending. We propose a solution to the double-spending problem using a peer-to-peer network.The network timestamps transactions by hashing them into an ongoing chain ofhash-based proof-of-work, forming a record that cannot be changed without redoingthe proof-of-work. The longest chain not only serves as proof of the sequence ofevents witnessed, but proof that it came from the largest pool of CPU power. Aslong as a majority of CPU power is controlled by nodes that are not cooperating toattack the network, they'll generate the longest chain and outpace attackers. Thenetwork itself requires minimal structure. Messages are broadcast on a best effortbasis, and nodes can leave and rejoin the network at will, accepting the longest proof-of-work chain as proof of what happened while they were gone."
 let cutUpStrings;
 let font;
 
@@ -163,6 +162,9 @@ let micAmplitude;
 let level;
 let addForce;
 let displayInfo = true;
+let rotateMode = false;
+let rotateType;
+let autoRotate = false;
 
 
 class Branch {
@@ -175,32 +177,32 @@ class Branch {
     }
 
     show() {
-        stroke(random(0, 50));
-        strokeWeight(0.1);
-        push();
-        translate(this.x, this.y, this.z);
-        rotateY(this.angle);
-        noFill();
-        beginShape();
-        rotateY(0.1)
-        rotateZ(1)
-        vertex(0, 0, 0);
-        let n = noise(this.x * noiseScale, this.y * noiseScale, this.z * noiseScale);
-        let r = map(n, 0, 1, 1, noiseStrength);
-        for (let i = 0; i <= 1; i++) {
-            let x = r * cos(i * 2 * Math.PI / 9);
-            let y = r * sin(i * 2 * Math.PI / 7);
+      stroke(random(0, 50));
+      strokeWeight(0.1);
+      push();
+      translate(this.x, this.y, this.z);
+      rotateY(this.angle);
+      noFill();
+      beginShape();
+      rotateY(0.1)
+      rotateZ(1)
+      vertex(0, 0, 0);
+      let n = noise(this.x * noiseScale, this.y * noiseScale, this.z * noiseScale);
+      let r = map(n, 0, 1, 1, noiseStrength);
+      for (let i = 0; i <= 1; i++) {
+          let x = r * cos(i * 2 * Math.PI / 9);
+          let y = r * sin(i * 2 * Math.PI / 7);
 
-            rotateZ(i * 2)
-            translate(x, y, i * 0.001)
-            texture(dotPattern);
-            translate(x + x, y + y, i * 0.001)
-            fill(random(colors44))
-            texture(dotPattern2);
-        }
-        endShape(CLOSE);
-        pop();
-    }
+        rotateZ(i * 2)
+        translate(x, y, i * 0.001)
+        texture(dotPattern);
+          translate(x + x, y + y, i * 0.001)
+          fill(random(colors44))
+          texture(dotPattern2);
+      }
+      endShape(CLOSE);
+      pop();
+  }
 }
 
 let branches = [];
@@ -279,7 +281,7 @@ function setup() {
     } else {
         rare = false;
     }
-    if (type == "SUPERRARE") {
+    if (type == "SUPER_RARE") {
         superRare = true;
         textureOn = true;
         hyperStripe = true;
@@ -287,7 +289,7 @@ function setup() {
     } else {
         superRare = false;
     }
-    if (type == "ULTRARARE") {
+    if (type == "ULTRA_RARE") {
         ultraRare = true;
         hyperStripe = true;
     } else {
@@ -449,7 +451,7 @@ function setup() {
     } else if (adsr == "LEAD") {
         afterImage = 3;
     } else {
-        afterImage = int(random(3));
+        afterImage = int(random(4));
     }
     //console.log("ADSR:" + adsr)
 
@@ -586,8 +588,10 @@ function setup() {
         oscObj = 3;
     } else if (osc == "LYRA") {
         oscObj = 4;
+    } else {
+        oscObj = int(random(1, 5));
+
     }
-    oscObj = 2;
 
     /////////////////Circle Rect
     circleRect = true;
@@ -782,6 +786,27 @@ function draw() {
     } else if (keyIsDown(DOWN_ARROW)) {
         cameraZ += stepZ;
     }
+    //cameraX = random(-2000,2000);
+    if (rotateMode) {
+        if (rotateType == 1) {
+            cameraX += 0.5;
+            cameraZ += 0.5;
+        } else if (rotateType == 2) {
+            cameraX -= 0.5;
+            cameraZ -= 0.5;
+        } else if (rotateType == 3) {
+            cameraX += 0.5;
+        } else if (rotateType == 4) {
+            lrand = random(100);
+            if (lrand > 95) {
+                cameraX = random(-1000, 1000)
+            }
+        }
+    }
+    if (autoRotate) {
+        cameraX += 0.5;
+    }
+//	cameraZ = random(-2000,2000);
     camera(cameraX + 0, 0, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
 
     if (superRare) {
@@ -852,14 +877,19 @@ function draw() {
     }
     camera(cameraX + 0, 0, cameraZ + height / 2 / tan(PI / 6), 0, 0, 0, 0, 1, 0);
 
+    if (rotateMode) {
+        rote = "R" + rotateType;
+    } else {
+        rote = "";
+    }
     if (displayInfo) {
         if (micMode) {
-            infoP.html("mainObj:" + mainObj + "    Color:" + type + "-" + colrand);
-            infoP2.html('count:' + count + "   MicMode Force:" + parseFloat(addForce.toFixed(3)));
-            infoP3.html(theTEXT);
-        } else {
-            infoP.html("mainObj:" + mainObj + "    Color:" + type + "-" + colrand);
-            infoP2.html('count:' + count + "   Level:" + parseFloat(level.toFixed(5)));
+          infoP.html("mainObj:" + mainObj + "    color:" + type + "-" + colrand + " " + rote);
+          infoP2.html('count:' + count + "   micMode force:" + parseFloat(addForce.toFixed(3)));
+          infoP3.html(theTEXT);
+      } else {
+            infoP.html("mainObj:" + mainObj + "    color:" + type + "-" + colrand + " " + rote);
+            infoP2.html('count:' + count + "   level:" + parseFloat(level.toFixed(5)));
             infoP3.html(theTEXT);
         }
     } else {
@@ -1729,11 +1759,19 @@ function keyTyped() {
             fft.setInput(sound);
         }
     }
+    if (key === 'r' || key === 'R') {
+        if (rotateMode) {
+            rotateMode = false;
+        } else {
+            rotateMode = true;
+            rotateType = int(random(1, 5));
+        }
+    }
 
     // cut up strings
     if (key === 'c' || key === 'C') {
         if (cutUpStringMode === 0) {
-            cutUpStrings = shuffle(cutUpSourceMode1.split(" "));
+            cutUpStrings = shuffle(cutUpSource.split(" "));
             cutUpStringMode = 1;
         } else if (cutUpStringMode === 1) {
             cutUpStrings = shuffle(textParams);

@@ -29,14 +29,14 @@ describe("AsyncToSync", function () {
 
     // Setup renderer (p5.js url and image url etc.)
     await (await renderer.setAnimationUrl("https://cryptorecord-storage-dev.kumaleon.com/" + asyncToSync.address + "/", ".html")).wait();
-    await (await renderer.setScriptUrl("https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/script.js")).wait();
+    await (await renderer.setScriptUrl("https://cryptorecord-storage-dev.kumaleon.com/scripts/script.js")).wait();
     await (await renderer.setExternalScript(
-      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/audioworklet-polyfill.js"></script>' +
-      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/p5.min.js"></script>' +
-      '<script src="https://ara.mypinata.cloud/ipfs/QmRp94673XW9oTmY311g542tLaKocELC7aNFhu7rVz3kFB/p5.sound.min.js"></script>'
+      '<script src="https://cryptorecord-storage-dev.kumaleon.com/scripts/audioworklet-polyfill.js"></script>' +
+      '<script src="https://cryptorecord-storage-dev.kumaleon.com/scripts/p5.min.js"></script>' +
+      '<script src="https://cryptorecord-storage-dev.kumaleon.com/scripts/p5.sound.min.js"></script>'
     )).wait();
-    await (await renderer.setSoundBaseUrl("https://ara.mypinata.cloud/ipfs/QmSv9SwzNFGBeqWxvxaDzrfHgjcKVAE958xoE5VaRUM5Er/")).wait();
-    await (await renderer.setImageUrl("https://ara.mypinata.cloud/ipfs/QmX3KvbuV45UWTcv3Tab93VuuW51A8b7eKG9XEbXFfCYKj/#", "")).wait();
+    await (await renderer.setSoundBaseUrl("https://cryptorecord-storage-dev.kumaleon.com/sounds/")).wait();
+    await (await renderer.setImageUrl("https://cryptorecord-storage-dev.kumaleon.com/" + asyncToSync.address + "/", "")).wait();
     await (await renderer.setBaseExternalUrl("https://cryptorecord.kumaleon.com/#")).wait();
 
     // Check initial status
