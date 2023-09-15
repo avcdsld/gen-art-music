@@ -53,7 +53,7 @@ const config: HardhatUserConfig = {
       url: "https://mainnet.infura.io/v3/7495501b681645b0b80f955d4139add9",
       accounts: [privateKey],
       gas: 2100000,
-      gasPrice: 6000000000,
+      gasPrice: 20000000005,
     },
   },
   gasReporter: {
